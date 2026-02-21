@@ -15,7 +15,11 @@ def login_page():
                 st.warning("Please enter both email and password")
                 return
 
-            if email == "admin@rems.in" and password == "Rotary@123":
+            # Fetch dynamic admin credentials from database
+            from src.database.firebase_init import get_admin_credentials
+            admin_success, admin_email, admin_password = get_admin_credentials()
+            
+            if admin_success and email == admin_email and password == admin_password:
                 # Admin login successful
                 st.session_state.logged_in = True
                 st.session_state.user_role = "admin"

@@ -344,3 +344,133 @@ def delete_subject(subject_id):
     except Exception as e:
         return False, str(e)
 
+# ----------------- Activity Logging Operations -----------------
+
+def log_activity(teacher_email, action, class_name=None, details=None):
+    """
+    Logs an action performed by a teacher.
+    action: string (e.g. 'Added Student', 'Saved Sheet URL', 'Created Subject')
+    class_name: string (optional context)
+    details: string (optional detailed info)
+    """
+    try:
+        db = firestore.client()
+        db.collection('activity_logs').add({
+            "teacher_email": teacher_email,
+            "action": action,
+            "class_name": class_name or "",
+            "details": details or "",
+            "timestamp": firestore.SERVER_TIMESTAMP
+        })
+        return True
+    except Exception:
+        # Fail silently for logging
+        return False
+
+def get_recent_logs(teacher_email=None, hours=24):
+    """
+    Fetches activity logs from the past N hours.
+    If teacher_email is provided, filters by that teacher.
+    """
+    try:
+        from datetime import datetime, timedelta
+        import pytz
+        db = firestore.client()
+        
+        # Calculate time threshold
+        time_threshold = datetime.now(pytz.utc) - timedelta(hours=hours)
+        
+        query = db.collection('activity_logs').where(
+            filter=firestore.FieldFilter('timestamp', '>=', time_threshold)
+        )
+        
+        if teacher_email:
+            query = query.where(
+                filter=firestore.FieldFilter('teacher_email', '==', teacher_email)
+            )
+            
+        # Sort by timestamp descending
+        docs = query.order_by('timestamp', direction=firestore.Query.DESCENDING).stream()
+        
+        logs = []
+        for doc in docs:
+            data = doc.to_dict()
+            # Convert timestamp to string if it exists
+            if 'timestamp' in data and data['timestamp']:
+                data['timestamp_str'] = data['timestamp'].strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                data['timestamp_str'] = 'Unknown'
+            logs.append(data)
+            
+        return True, logs
+    except Exception as e:
+        return False, str(e)
+
+# ----------------- Organization Settings Operations -----------------
+
+def get_org_name():
+    try:
+        db = firestore.client()
+        doc = db.collection('settings').document('organization').get()
+        if doc.exists:
+            return doc.to_dict().get('org_name', 'Rotary School')
+        return 'Rotary School'
+    except Exception:
+        return 'Rotary School'
+
+def update_org_name(org_name):
+    try:
+        db = firestore.client()
+        db.collection('settings').document('organization').set({
+            "org_name": org_name,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        }, merge=True)
+        return True, "Organization name updated"
+    except Exception as e:
+        return False, str(e)
+
+def get_admin_credentials():
+    try:
+        db = firestore.client()
+        doc = db.collection('settings').document('admin').get()
+        if doc.exists:
+            data = doc.to_dict()
+            return True, data.get('email', 'admin@rems.in'), data.get('password', 'Rotary@123')
+        return True, "admin@rems.in", "Rotary@123"
+    except Exception:
+        return False, "admin@rems.in", "Rotary@123"
+
+def update_admin_credentials(email, password):
+    try:
+        db = firestore.client()
+        db.collection('settings').document('admin').set({
+            "email": email,
+            "password": password,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        }, merge=True)
+        return True, "Admin credentials updated"
+    except Exception as e:
+        return False, str(e)
+
+def get_org_logo():
+    try:
+        db = firestore.client()
+        doc = db.collection('settings').document('organization').get()
+        if doc.exists:
+            return True, doc.to_dict().get('logo_base64', '')
+        return True, ''
+    except Exception as e:
+        return False, str(e)
+
+def update_org_logo(base64_string):
+    try:
+        db = firestore.client()
+        ref = db.collection('settings').document('organization')
+        ref.set({
+            "logo_base64": base64_string,
+            "updated_at": firestore.SERVER_TIMESTAMP
+        }, merge=True)
+        return True, "Logo updated successfully"
+    except Exception as e:
+        return False, str(e)
+

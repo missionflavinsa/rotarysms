@@ -6,7 +6,7 @@ st.set_page_config(page_title="Rotary RMS", page_icon="🎓", layout="wide")
 from src.views.login import login_page
 from src.views.admin import admin_page
 from src.views.teacher import teacher_page
-from src.database.firebase_init import init_firebase
+from src.database.firebase_init import init_firebase, get_org_logo, get_org_name
 
 # Initialize session state for login
 if 'logged_in' not in st.session_state:
@@ -16,9 +16,14 @@ if 'user_role' not in st.session_state:
 if 'user_email' not in st.session_state:
     st.session_state.user_email = None
 
+from src.views.ui_utils import inject_custom_css
+
 def main():
     # Ensure Firebase is initialized
     init_firebase()
+    
+    # Inject Global SaaS CSS
+    inject_custom_css()
     
     # Hide default Streamlit menu and footer
     hide_streamlit_style = """
@@ -29,22 +34,36 @@ def main():
                 """
     st.markdown(hide_streamlit_style, unsafe_allow_html=True)
     
-    st.sidebar.title("Rotary RMS")
+    # Dynamically inject organization logo and name
+    if 'org_logo' not in st.session_state:
+        l_success, logo_b64 = get_org_logo()
+        st.session_state.org_logo = logo_b64 if l_success and logo_b64 else None
+        
+    if 'org_name' not in st.session_state:
+        st.session_state.org_name = get_org_name()
+        
+    if st.session_state.org_logo:
+        st.sidebar.markdown(f'<div style="text-align: center;"><img src="data:image/png;base64,{st.session_state.org_logo}" style="max-width: 100%; max-height: 120px; border-radius: 8px;"></div><br>', unsafe_allow_html=True)
+    else:
+        st.sidebar.title(f"🏢 {st.session_state.org_name}")
     
     if st.session_state.logged_in:
-        st.sidebar.write(f"Logged in as: {st.session_state.user_email}")
-        if st.sidebar.button("Logout"):
+        st.sidebar.write(f"Logged in as: **{st.session_state.user_email}**")
+        st.sidebar.markdown("---")
+            
+        # Routing based on role (renders their specific sidebar nav first)
+        if st.session_state.user_role == 'admin':
+            admin_page()
+        elif st.session_state.user_role == 'teacher':
+            teacher_page()
+            
+        st.sidebar.markdown("---")
+        if st.sidebar.button("🚪 Logout", use_container_width=True):
             # Clear session
             st.session_state.logged_in = False
             st.session_state.user_role = None
             st.session_state.user_email = None
             st.rerun()
-            
-        # Routing based on role
-        if st.session_state.user_role == 'admin':
-            admin_page()
-        elif st.session_state.user_role == 'teacher':
-            teacher_page()
             
     else:
         login_page()
