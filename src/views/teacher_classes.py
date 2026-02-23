@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+import base64
+from datetime import datetime
 from src.database.firebase_init import get_classes_for_teacher, get_students_by_class, update_student, delete_student, add_subject, get_subjects, update_subject, delete_subject, log_activity
 
 def render_teacher_classes(teacher_email):
@@ -29,54 +31,110 @@ def render_teacher_classes(teacher_email):
                             if not students:
                                 st.info("No students enrolled in this class.")
                             else:
-                                df_students = pd.DataFrame(students)
-                                st.dataframe(df_students[['roll_number', 'name', 'email']], hide_index=True, use_container_width=True)
+                                st_tab1, st_tab2, st_tab3 = st.tabs(["📋 View & Edit", "➕ Add Individual", "📁 Bulk Import"])
                                 
-                                st.write("**Manage Student Data**")
-                                with st.container(border=True):
-                                    student_options = {f"{s['roll_number']} - {s['name']}": s['id'] for s in students}
-                                    student_map = {s['id']: s for s in students}
+                                with st_tab1:
+                                    df_students = pd.DataFrame(students)
+                                    display_cols = ['roll_number', 'name']
+                                    if 'reg_number' in df_students.columns: display_cols.append('reg_number')
+                                    if 'apaar_id' in df_students.columns: display_cols.append('apaar_id')
+                                    if 'dob' in df_students.columns: display_cols.append('dob')
+                                    if 'email' in df_students.columns: display_cols.append('email')
+                                    st.dataframe(df_students[display_cols], hide_index=True, use_container_width=True)
                                     
-                                    selected_student_label = st.selectbox(f"Select Student from {cls['class_name']}-{cls['section']}", options=list(student_options.keys()), key=f"sel_{cls['id']}")
-                                    selected_student_id = student_options[selected_student_label]
-                                    selected_student_data = student_map[selected_student_id]
-                                    
-                                    col1, col2 = st.columns(2)
-                                    with col1:
-                                        with st.form(f"update_student_form_{cls['id']}"):
-                                            u_roll = st.text_input("Roll Number", value=selected_student_data['roll_number'])
-                                            u_name = st.text_input("Full Name", value=selected_student_data['name'])
-                                            u_email = st.text_input("Email", value=selected_student_data.get('email', ''))
-                                            
-                                            upd_btn = st.form_submit_button("Update Student", type="primary")
-                                            if upd_btn:
-                                                if not u_roll or not u_name:
-                                                    st.error("Roll Number and Name are required.")
-                                                else:
-                                                    with st.spinner("Updating student..."):
-                                                        up_success, up_res = update_student(selected_student_id, roll_number=u_roll, name=u_name, email=u_email)
-                                                    if up_success:
-                                                        log_activity(teacher_email, "Updated Student", f"{cls.get('class_name')}-{cls.get('section')}", f"Roll: {u_roll}, Name: {u_name}")
-                                                        st.success("Successfully updated student.")
+                                    st.write("**Manage Student Data**")
+                                    with st.container(border=True):
+                                        student_options = {f"{s['roll_number']} - {s['name']}": s['id'] for s in students}
+                                        student_map = {s['id']: s for s in students}
+                                        
+                                        selected_student_label = st.selectbox(f"Select Student from {cls['class_name']}-{cls['section']}", options=list(student_options.keys()), key=f"sel_{cls['id']}")
+                                        selected_student_id = student_options[selected_student_label]
+                                        selected_student_data = student_map[selected_student_id]
+                                        
+                                        col1, col2 = st.columns(2)
+                                        with col1:
+                                            with st.form(f"update_student_form_{cls['id']}"):
+                                                u_photo = st.file_uploader("Update Profile Photo", type=["png", "jpg", "jpeg"])
+                                                u_name = st.text_input("Name of the Learner", value=selected_student_data.get('name', ''))
+                                                u_apaar = st.text_input("APAAR ID/PEN", value=selected_student_data.get('apaar_id', ''))
+                                                u_reg = st.text_input("Registration/Admission Number", value=selected_student_data.get('reg_number', ''))
+                                                u_roll = st.text_input("Roll Number", value=selected_student_data.get('roll_number', ''))
+                                                
+                                                dob_str = selected_student_data.get('dob', '')
+                                                try:
+                                                    def_dob = datetime.strptime(dob_str, "%Y-%m-%d").date() if dob_str else None
+                                                except:
+                                                    def_dob = None
+                                                u_dob = st.date_input("Date of Birth", value=def_dob)
+                                                u_email = st.text_input("Email", value=selected_student_data.get('email', ''))
+                                                
+                                                upd_btn = st.form_submit_button("Update Student", type="primary")
+                                                if upd_btn:
+                                                    if not u_roll or not u_name:
+                                                        st.error("Roll Number and Name are required.")
+                                                    else:
+                                                        with st.spinner("Updating student..."):
+                                                            photo_b64 = selected_student_data.get('profile_photo', '')
+                                                            if u_photo:
+                                                                photo_b64 = base64.b64encode(u_photo.getvalue()).decode()
+                                                                                                                            
+                                                            up_success, up_res = update_student(
+                                                                selected_student_id, roll_number=u_roll, name=u_name, 
+                                                                apaar_id=u_apaar, reg_number=u_reg, dob=str(u_dob) if u_dob else "", 
+                                                                profile_photo=photo_b64, email=u_email
+                                                            )
+                                                        if up_success:
+                                                            log_activity(teacher_email, "Updated Student", f"{cls.get('class_name')}-{cls.get('section')}", f"Roll: {u_roll}, Name: {u_name}")
+                                                            st.success("Successfully updated student.")
+                                                            st.rerun()
+                                                        else:
+                                                            st.error(f"Failed to update: {up_res}")
+                                                            
+                                        with col2:
+                                            with st.form(f"delete_student_form_{cls['id']}"):
+                                                st.write('<div style="height: 38px;"></div>', unsafe_allow_html=True)
+                                                st.warning("This action cannot be undone.")
+                                                del_btn = st.form_submit_button("Delete Student")
+                                                
+                                                if del_btn:
+                                                    with st.spinner("Deleting student..."):
+                                                        del_success, del_res = delete_student(selected_student_id)
+                                                    if del_success:
+                                                        log_activity(teacher_email, "Deleted Student", f"{cls.get('class_name')}-{cls.get('section')}", f"Roll: {selected_student_data.get('roll_number')}")
+                                                        st.success("Successfully deleted student.")
                                                         st.rerun()
                                                     else:
-                                                        st.error(f"Failed to update: {up_res}")
+                                                        st.error(f"Failed to delete: {del_res}")
                                                         
-                                    with col2:
-                                        with st.form(f"delete_student_form_{cls['id']}"):
-                                            st.write('<div style="height: 38px;"></div>', unsafe_allow_html=True)
-                                            st.warning("This action cannot be undone.")
-                                            del_btn = st.form_submit_button("Delete Student")
+                                with st_tab2:
+                                    st.info("Please ask an Administrator to add individual students manually.")
+                                    # Form logic hidden for teachers to match req, or they can use bulk upload.
+                                    
+                                with st_tab3:
+                                    st.info("The Excel file must contain these exact column headers: `Roll Number` and `Name of the Learner`")
+                                    st.write("Optional columns: `APAAR ID/PEN`, `Registration/Admission Number`, `Date of Birth` (YYYY-MM-DD), `Email`")
+                                    uploaded_file = st.file_uploader("Choose an Excel or CSV file", type=["xlsx", "xls", "csv"], key=f"up_{cls['id']}")
+                                    
+                                    if uploaded_file is not None:
+                                        try:
+                                            if uploaded_file.name.endswith('.csv'):
+                                                df = pd.read_csv(uploaded_file)
+                                            else:
+                                                df = pd.read_excel(uploaded_file)
+                                                
+                                            st.dataframe(df.head(), use_container_width=True)
                                             
-                                            if del_btn:
-                                                with st.spinner("Deleting student..."):
-                                                    del_success, del_res = delete_student(selected_student_id)
-                                                if del_success:
-                                                    log_activity(teacher_email, "Deleted Student", f"{cls.get('class_name')}-{cls.get('section')}", f"Roll: {selected_student_data.get('roll_number')}")
-                                                    st.success("Successfully deleted student.")
-                                                    st.rerun()
+                                            if st.button("Confirm Import", type="primary", key=f"conf_{cls['id']}"):
+                                                with st.spinner("Importing students..."):
+                                                    from src.database.firebase_init import bulk_import_students
+                                                    imp_success, imp_result = bulk_import_students(cls['id'], df)
+                                                if imp_success:
+                                                    log_activity(teacher_email, "Bulk Imported Students", f"{cls.get('class_name')}-{cls.get('section')}")
+                                                    st.success(imp_result)
                                                 else:
-                                                    st.error(f"Failed to delete: {del_res}")
+                                                    st.error(imp_result)
+                                        except Exception as e:
+                                            st.error(f"Error reading file: {e}")
                         else:
                             st.error(f"Failed to load students: {students}")
                             

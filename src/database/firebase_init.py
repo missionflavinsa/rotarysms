@@ -59,30 +59,53 @@ def sign_in(email, password):
             return None
     return None
 
-def create_user(email, password):
+def create_user(email, password, name="", profile_photo=""):
     try:
         user = auth.create_user(
             email=email,
             password=password
         )
+        
+        # Store additional metadata in Firestore
+        db = firestore.client()
+        db.collection('users').document(user.uid).set({
+            "email": email,
+            "name": name,
+            "profile_photo": profile_photo,
+            "created_at": firestore.SERVER_TIMESTAMP
+        })
+        
         return True, user.uid
     except Exception as e:
         return False, str(e)
 
 def get_all_users():
     try:
+        db = firestore.client()
         users = []
         for user in auth.list_users().iterate_all():
-            users.append({
+            # Basic info from Auth
+            user_data = {
                 "uid": user.uid,
                 "email": user.email,
-                "created_at": user.user_metadata.creation_timestamp
-            })
+                "created_at": user.user_metadata.creation_timestamp,
+                "name": "",
+                "profile_photo": ""
+            }
+            
+            # Enrich with Firestore metadata if available
+            doc = db.collection('users').document(user.uid).get()
+            if doc.exists:
+                meta = doc.to_dict()
+                user_data["name"] = meta.get("name", "")
+                user_data["profile_photo"] = meta.get("profile_photo", "")
+                
+            users.append(user_data)
         return True, users
     except Exception as e:
         return False, str(e)
 
-def update_user(uid, new_email=None, new_password=None):
+def update_user(uid, new_email=None, new_password=None, name=None, profile_photo=None):
     try:
         kwargs = {}
         if new_email:
@@ -92,6 +115,17 @@ def update_user(uid, new_email=None, new_password=None):
         
         if kwargs:
             auth.update_user(uid, **kwargs)
+            
+        # Update Firestore metadata
+        db = firestore.client()
+        meta_data = {}
+        if new_email: meta_data["email"] = new_email
+        if name is not None: meta_data["name"] = name
+        if profile_photo is not None: meta_data["profile_photo"] = profile_photo
+        
+        if meta_data:
+            db.collection('users').document(uid).set(meta_data, merge=True)
+            
         return True, "User updated successfully"
     except Exception as e:
         return False, str(e)
@@ -99,6 +133,11 @@ def update_user(uid, new_email=None, new_password=None):
 def delete_user(uid):
     try:
         auth.delete_user(uid)
+        
+        # Delete Firestore metadata
+        db = firestore.client()
+        db.collection('users').document(uid).delete()
+        
         return True, "User deleted successfully"
     except Exception as e:
         return False, str(e)
@@ -173,7 +212,7 @@ def delete_class(class_id):
 
 # --- Students ---
 
-def add_student(class_id, roll_number, name, email=""):
+def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="", profile_photo="", email=""):
     try:
         db = firestore.client()
         # Check if student with same roll_number exists in this class
@@ -185,6 +224,10 @@ def add_student(class_id, roll_number, name, email=""):
             "class_id": class_id,
             "roll_number": roll_number,
             "name": name,
+            "apaar_id": apaar_id,
+            "reg_number": reg_number,
+            "dob": str(dob) if dob else "",
+            "profile_photo": profile_photo,
             "email": email,
             "created_at": firestore.SERVER_TIMESTAMP
         })
@@ -205,13 +248,17 @@ def get_students_by_class(class_id):
     except Exception as e:
         return False, str(e)
 
-def update_student(student_id, roll_number=None, name=None, email=None):
+def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_number=None, dob=None, profile_photo=None, email=None):
     try:
         db = firestore.client()
         ref = db.collection('students').document(student_id)
         data = {}
         if roll_number is not None: data['roll_number'] = roll_number
         if name is not None: data['name'] = name
+        if apaar_id is not None: data['apaar_id'] = apaar_id
+        if reg_number is not None: data['reg_number'] = reg_number
+        if dob is not None: data['dob'] = str(dob)
+        if profile_photo is not None: data['profile_photo'] = profile_photo
         if email is not None: data['email'] = email
         
         if data:
@@ -230,23 +277,34 @@ def delete_student(student_id):
 
 def bulk_import_students(class_id, df):
     """
-    Expects a pandas DataFrame with columns 'Roll Number', 'Name', and optionally 'Email'.
+    Expects a pandas DataFrame with columns 'Roll Number', 'Name of the Learner', 'APAAR ID/PEN', 'Registration/Admission Number', 'Date of Birth'.
     """
     try:
         db = firestore.client()
         batch = db.batch()
         
-        required_cols = ['Roll Number', 'Name']
+        # Check for requested bulk format or fallback to older format
+        has_new_name = 'Name of the Learner' in df.columns
+        name_col = 'Name of the Learner' if has_new_name else 'Name'
+        roll_col = 'Roll Number'
+        
+        required_cols = [roll_col, name_col]
         if not all(col in df.columns for col in required_cols):
-             return False, f"Excel file must contain at least 'Roll Number' and 'Name' columns."
+             return False, f"Excel file must contain at least '{roll_col}' and '{name_col}' columns."
              
-        # Optional Email column mapping
+        # Optional fields mapping
+        has_apaar = 'APAAR ID/PEN' in df.columns
+        has_reg = 'Registration/Admission Number' in df.columns
+        has_dob = 'Date of Birth' in df.columns
         has_email = 'Email' in df.columns
         
         counter = 0
         for index, row in df.iterrows():
-            roll_number = str(row['Roll Number']).strip()
-            name = str(row['Name']).strip()
+            roll_number = str(row[roll_col]).strip()
+            name = str(row[name_col]).strip()
+            apaar_id = str(row['APAAR ID/PEN']).strip() if has_apaar and not pd.isna(row['APAAR ID/PEN']) else ""
+            reg_num = str(row['Registration/Admission Number']).strip() if has_reg and not pd.isna(row['Registration/Admission Number']) else ""
+            dob = str(row['Date of Birth']).strip() if has_dob and not pd.isna(row['Date of Birth']) else ""
             email = str(row['Email']).strip() if has_email and not pd.isna(row['Email']) else ""
             
             # Simple check
@@ -258,6 +316,10 @@ def bulk_import_students(class_id, df):
                 "class_id": class_id,
                 "roll_number": roll_number,
                 "name": name,
+                "apaar_id": apaar_id,
+                "reg_number": reg_num,
+                "dob": dob,
+                "profile_photo": "", # Ignore photo on bulk import for now
                 "email": email,
                 "created_at": firestore.SERVER_TIMESTAMP
             })

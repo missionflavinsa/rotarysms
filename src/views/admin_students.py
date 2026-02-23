@@ -1,18 +1,28 @@
 import streamlit as st
 import pandas as pd
+import base64
+from datetime import datetime
 from src.database.firebase_init import (get_all_classes, add_student, bulk_import_students, 
-                                        get_students_by_class, update_student, delete_student)
+                                        get_students_by_class, update_student, delete_student, get_all_users)
 
 def render_students():
     st.header("👨‍🎓 Student Management")
     st.write("Manage student records and class assignments.")
     
     c_success, classes_list = get_all_classes()
+    t_success, users_list = get_all_users()
+    
+    # Create mapping of email to Name (Email)
+    teacher_name_map = {}
+    if t_success and users_list:
+        for u in users_list:
+            teacher_name_map[u['email']] = f"{u.get('name', '')} ({u['email']})" if u.get('name') else u['email']
     
     if not c_success or not classes_list:
         st.warning("You must create at least one class before adding students.")
     else:
         class_options = {f"Class {c['class_name']} - Section {c['section']}": c['id'] for c in classes_list}
+        class_map = {c['id']: c for c in classes_list}
         selected_class_label = st.selectbox("Select Target Class:", options=list(class_options.keys()))
         selected_class_id = class_options[selected_class_label]
         
@@ -26,7 +36,12 @@ def render_students():
                     st.info("No students enrolled in this class.")
                 else:
                     df_students = pd.DataFrame(students)
-                    st.dataframe(df_students[['roll_number', 'name', 'email']], hide_index=True, use_container_width=True)
+                    display_cols = ['roll_number', 'name']
+                    if 'reg_number' in df_students.columns: display_cols.append('reg_number')
+                    if 'apaar_id' in df_students.columns: display_cols.append('apaar_id')
+                    if 'dob' in df_students.columns: display_cols.append('dob')
+                    if 'email' in df_students.columns: display_cols.append('email')
+                    st.dataframe(df_students[display_cols], hide_index=True, use_container_width=True)
                     
                     student_options = {f"{s['roll_number']} - {s['name']}": s['id'] for s in students}
                     student_map = {s['id']: s for s in students}
@@ -40,8 +55,18 @@ def render_students():
                         col1, col2 = st.columns(2)
                         with col1:
                             with st.form(f"admin_update_stu_form"):
-                                u_roll = st.text_input("Roll Number", value=selected_student_data['roll_number'])
-                                u_name = st.text_input("Full Name", value=selected_student_data['name'])
+                                u_photo = st.file_uploader("Update Profile Photo", type=["png", "jpg", "jpeg"])
+                                u_name = st.text_input("Name of the Learner", value=selected_student_data.get('name', ''))
+                                u_apaar = st.text_input("APAAR ID/PEN", value=selected_student_data.get('apaar_id', ''))
+                                u_reg = st.text_input("Registration/Admission Number", value=selected_student_data.get('reg_number', ''))
+                                u_roll = st.text_input("Roll Number", value=selected_student_data.get('roll_number', ''))
+                                
+                                dob_str = selected_student_data.get('dob', '')
+                                try:
+                                    def_dob = datetime.strptime(dob_str, "%Y-%m-%d").date() if dob_str else None
+                                except:
+                                    def_dob = None
+                                u_dob = st.date_input("Date of Birth", value=def_dob)
                                 u_email = st.text_input("Email", value=selected_student_data.get('email', ''))
                                 
                                 upd_btn = st.form_submit_button("Update Student")
@@ -50,7 +75,15 @@ def render_students():
                                         st.error("Roll Number and Name are required.")
                                     else:
                                         with st.spinner("Updating student..."):
-                                            up_success, up_res = update_student(selected_student_id, roll_number=u_roll, name=u_name, email=u_email)
+                                            photo_b64 = selected_student_data.get('profile_photo', '')
+                                            if u_photo:
+                                                photo_b64 = base64.b64encode(u_photo.getvalue()).decode()
+                                                                                            
+                                            up_success, up_res = update_student(
+                                                selected_student_id, roll_number=u_roll, name=u_name, 
+                                                apaar_id=u_apaar, reg_number=u_reg, dob=str(u_dob) if u_dob else "", 
+                                                profile_photo=photo_b64, email=u_email
+                                            )
                                         if up_success:
                                             st.success("Successfully updated student.")
                                             st.rerun()
@@ -75,17 +108,43 @@ def render_students():
 
         with st_tab2:
             with st.form("add_individual_student_form"):
-                roll_no = st.text_input("Roll Number")
-                name = st.text_input("Full Name")
-                email = st.text_input("Email (Optional)")
+                n_photo = st.file_uploader("1. Profile Photo", type=["png", "jpg", "jpeg"])
+                
+                n_name = st.text_input("2. Name of the Learner")
+                n_apaar = st.text_input("3. APAAR ID/PEN")
+                n_reg = st.text_input("4. Registration/Admission Number")
+                n_roll = st.text_input("5. Roll Number")
+                
+                # Requested Dropdowns
+                n_class_id = st.selectbox("6. Class & Section", options=list(class_options.values()), format_func=lambda x: [k for k,v in class_options.items() if v == x][0], index=list(class_options.values()).index(selected_class_id))
+                
+                n_dob = st.date_input("7. Date of Birth", value=None)
+                
+                # Fetch teacher for visual display from the selected class mapping (if available)
+                target_cls_data = class_map.get(n_class_id, {})
+                assigned_teacher = target_cls_data.get('teacher_email', '')
+                
+                # Use the map to show Name (Email)
+                default_t_idx = list(teacher_name_map.keys()).index(assigned_teacher) if assigned_teacher in teacher_name_map else 0
+                n_teacher_label = st.selectbox("8. Class Teacher", options=list(teacher_name_map.values()), index=default_t_idx)
+                
+                # Reverse lookup the email from the selected label if needed, though we don't strictly save teacher to student
+                # n_teacher = [k for k, v in teacher_name_map.items() if v == n_teacher_label][0]
+                
+                n_email = st.text_input("Email (Optional)")
                 
                 submit_student = st.form_submit_button("Add Student", type="primary")
                 if submit_student:
-                    if not roll_no or not name:
+                    if not n_roll or not n_name:
                         st.error("Roll Number and Name are required.")
                     else:
                         with st.spinner("Adding student..."):
-                            s_success, s_result = add_student(selected_class_id, roll_no, name, email)
+                            photo_b64 = base64.b64encode(n_photo.getvalue()).decode() if n_photo else ""
+                            s_success, s_result = add_student(
+                                class_id=n_class_id, roll_number=n_roll, name=n_name, 
+                                apaar_id=n_apaar, reg_number=n_reg, dob=str(n_dob) if n_dob else "", 
+                                profile_photo=photo_b64, email=n_email
+                            )
                         if s_success:
                             st.success("Successfully added student.")
                             st.rerun()
@@ -93,7 +152,8 @@ def render_students():
                             st.error(f"Failed to add student: {s_result}")
                             
         with st_tab3:
-            st.info("Your file must contain a 'Roll Number' column and a 'Name' column. An 'Email' column is optional.")
+            st.info("The Excel file must contain these exact column headers: `Roll Number` and `Name of the Learner`")
+            st.write("Optional columns: `APAAR ID/PEN`, `Registration/Admission Number`, `Date of Birth` (YYYY-MM-DD), `Email`")
             uploaded_file = st.file_uploader("Choose an Excel or CSV file", type=["xlsx", "xls", "csv"])
             
             if uploaded_file is not None:
