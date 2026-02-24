@@ -212,7 +212,8 @@ def delete_class(class_id):
 
 # --- Students ---
 
-def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="", profile_photo="", email=""):
+def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="", profile_photo="", email="", mother_name="", father_name="", 
+                insights=None, physical=None, glims=None, emotional=None, habits=None):
     try:
         db = firestore.client()
         # Check if student with same roll_number exists in this class
@@ -220,7 +221,7 @@ def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="",
         if len(list(existing)) > 0:
             return False, f"Student with roll number {roll_number} already exists in this class."
             
-        _, new_ref = db.collection('students').add({
+        payload = {
             "class_id": class_id,
             "roll_number": roll_number,
             "name": name,
@@ -229,8 +230,16 @@ def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="",
             "dob": str(dob) if dob else "",
             "profile_photo": profile_photo,
             "email": email,
+            "mother_name": mother_name,
+            "father_name": father_name,
+            "insights": insights if insights else {},
+            "physical": physical if physical else {},
+            "glims": glims if glims else {},
+            "emotional": emotional if emotional else {},
+            "habits": habits if habits else {},
             "created_at": firestore.SERVER_TIMESTAMP
-        })
+        }
+        _, new_ref = db.collection('students').add(payload)
         return True, new_ref.id
     except Exception as e:
         return False, str(e)
@@ -248,7 +257,9 @@ def get_students_by_class(class_id):
     except Exception as e:
         return False, str(e)
 
-def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_number=None, dob=None, profile_photo=None, email=None):
+def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_number=None, dob=None, profile_photo=None, 
+                   email=None, mother_name=None, father_name=None,
+                   insights=None, physical=None, glims=None, emotional=None, habits=None):
     try:
         db = firestore.client()
         ref = db.collection('students').document(student_id)
@@ -260,6 +271,14 @@ def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_n
         if dob is not None: data['dob'] = str(dob)
         if profile_photo is not None: data['profile_photo'] = profile_photo
         if email is not None: data['email'] = email
+        if mother_name is not None: data['mother_name'] = mother_name
+        if father_name is not None: data['father_name'] = father_name
+        
+        if insights is not None: data['insights'] = insights
+        if physical is not None: data['physical'] = physical
+        if glims is not None: data['glims'] = glims
+        if emotional is not None: data['emotional'] = emotional
+        if habits is not None: data['habits'] = habits
         
         if data:
             ref.update(data)
@@ -277,13 +296,15 @@ def delete_student(student_id):
 
 def bulk_import_students(class_id, df):
     """
-    Expects a pandas DataFrame with columns 'Roll Number', 'Name of the Learner', 'APAAR ID/PEN', 'Registration/Admission Number', 'Date of Birth'.
+    Expects a pandas DataFrame adhering to EXCEL_COLUMN_MAP headers.
+    It will upsert students based on 'Roll Number' in the current class.
     """
+    from src.utils.excel_utils import EXCEL_COLUMN_MAP
+    import pandas as pd
     try:
         db = firestore.client()
         batch = db.batch()
         
-        # Check for requested bulk format or fallback to older format
         has_new_name = 'Name of the Learner' in df.columns
         name_col = 'Name of the Learner' if has_new_name else 'Name'
         roll_col = 'Roll Number'
@@ -292,49 +313,118 @@ def bulk_import_students(class_id, df):
         if not all(col in df.columns for col in required_cols):
              return False, f"Excel file must contain at least '{roll_col}' and '{name_col}' columns."
              
-        # Optional fields mapping
-        has_apaar = 'APAAR ID/PEN' in df.columns
-        has_reg = 'Registration/Admission Number' in df.columns
-        has_dob = 'Date of Birth' in df.columns
-        has_email = 'Email' in df.columns
+        # Reverse map from Excel Column Header -> Internal Key
+        rev_map = {v: k for k, v in EXCEL_COLUMN_MAP.items()}
+        
+        existing_docs = db.collection('students').where(filter=firestore.FieldFilter('class_id', '==', class_id)).stream()
+        existing_map = {doc.to_dict().get('roll_number'): doc.id for doc in existing_docs}
         
         counter = 0
+        added_count = 0
+        updated_count = 0
+        
         for index, row in df.iterrows():
             roll_number = str(row[roll_col]).strip()
             name = str(row[name_col]).strip()
-            apaar_id = str(row['APAAR ID/PEN']).strip() if has_apaar and not pd.isna(row['APAAR ID/PEN']) else ""
-            reg_num = str(row['Registration/Admission Number']).strip() if has_reg and not pd.isna(row['Registration/Admission Number']) else ""
-            dob = str(row['Date of Birth']).strip() if has_dob and not pd.isna(row['Date of Birth']) else ""
-            email = str(row['Email']).strip() if has_email and not pd.isna(row['Email']) else ""
             
-            # Simple check
-            if not roll_number or roll_number == 'nan' or not name or name == 'nan':
+            if not roll_number or str(roll_number).lower() == 'nan' or not name or str(name).lower() == 'nan':
                 continue
+            
+            # Helper to safely extract from pandas row
+            def get_val(col_header):
+                if col_header in df.columns and pd.notna(row[col_header]):
+                    val = row[col_header]
+                    if isinstance(val, str): return val.strip()
+                    return val
+                return ""
+            
+            # Base attributes mapped explicitly for validation (like dob)
+            apaar_id = str(get_val('APAAR ID'))
+            reg_num = str(get_val('Registration No'))
+            email = str(get_val('Email'))
+            mother = str(get_val("Mother's Name"))
+            father = str(get_val("Father's Name"))
+            photo_url = str(get_val('Profile Photo URL'))
+            
+            dob_raw = get_val('Date of Birth')
+            dob = ""
+            if dob_raw:
+                try:
+                    parsed_date = pd.to_datetime(dob_raw, dayfirst=True)
+                    dob = parsed_date.strftime('%d/%m/%Y')
+                except:
+                    dob = str(dob_raw).strip()
+            
+            # Build nested structures using prefixes
+            ins_dict, phy_dict, glm_dict = {}, {}, {}
+            emo_dict = {'t1': {}, 't2': {}}
+            hab_dict = {'t1': {}, 't2': {}}
+            
+            for col_header in df.columns:
+                internal_key = rev_map.get(col_header)
+                if not internal_key: continue
                 
-            new_ref = db.collection('students').document()
-            batch.set(new_ref, {
+                val = get_val(col_header)
+                
+                if internal_key.startswith('ins_'):
+                    ins_dict[internal_key.replace('ins_', '')] = val
+                elif internal_key.startswith('phy_'):
+                    phy_dict[internal_key.replace('phy_', '')] = val
+                elif internal_key.startswith('glm_'):
+                    glm_dict[internal_key.replace('glm_', '')] = val
+                elif internal_key.startswith('emo_t1_'):
+                    if internal_key == 'emo_t1_feel':
+                        emo_dict['t1']['feel'] = [x.strip() for x in str(val).split(',')] if val else []
+                    else:
+                        emo_dict['t1'][internal_key.replace('emo_t1_', '')] = val
+                elif internal_key.startswith('emo_t2_'):
+                    if internal_key == 'emo_t2_feel':
+                        emo_dict['t2']['feel'] = [x.strip() for x in str(val).split(',')] if val else []
+                    else:
+                        emo_dict['t2'][internal_key.replace('emo_t2_', '')] = val
+                elif internal_key.startswith('hab_t1_'):
+                    hab_dict['t1'][internal_key.replace('hab_t1_', '')] = val
+                elif internal_key.startswith('hab_t2_'):
+                    hab_dict['t2'][internal_key.replace('hab_t2_', '')] = val
+
+            student_data = {
                 "class_id": class_id,
                 "roll_number": roll_number,
                 "name": name,
                 "apaar_id": apaar_id,
                 "reg_number": reg_num,
                 "dob": dob,
-                "profile_photo": "", # Ignore photo on bulk import for now
+                "profile_photo": photo_url,
                 "email": email,
-                "created_at": firestore.SERVER_TIMESTAMP
-            })
+                "mother_name": mother,
+                "father_name": father,
+                "insights": ins_dict,
+                "physical": phy_dict,
+                "glims": glm_dict,
+                "emotional": emo_dict,
+                "habits": hab_dict,
+                "updated_at": firestore.SERVER_TIMESTAMP
+            }
+                
+            if roll_number in existing_map:
+                ref = db.collection('students').document(existing_map[roll_number])
+                batch.update(ref, student_data)
+                updated_count += 1
+            else:
+                student_data["created_at"] = firestore.SERVER_TIMESTAMP
+                ref = db.collection('students').document()
+                batch.set(ref, student_data)
+                added_count += 1
+                
             counter += 1
-            
-            # Firestore batch limit is 500
             if counter % 400 == 0:
                 batch.commit()
                 batch = db.batch()
                 
-        # Commit remaining
         if counter % 400 != 0:
             batch.commit()
             
-        return True, f"Successfully imported {counter} students."
+        return True, f"Import complete. Added {added_count} new students. Updated {updated_count} existing students."
     except Exception as e:
         return False, str(e)
 

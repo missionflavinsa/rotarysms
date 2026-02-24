@@ -168,7 +168,6 @@ def inject_custom_css():
         [data-testid="stDataFrame"] {
             border: 1px solid #334155 !important;
             border-radius: 8px !important;
-            overflow: hidden !important;
             background-color: #0F172A !important;
         }
         [data-testid="stDataFrame"] table {
