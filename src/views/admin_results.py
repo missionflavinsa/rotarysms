@@ -404,7 +404,7 @@ def render_admin_results():
                 st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
                 with st.expander("🔍 Show Full Extended Data Payload"):
                     from src.utils.excel_utils import flatten_student_for_export
-                    flat_data = flatten_student_for_export(selected_student_data, selected_class_data, teacher_name)
+                    flat_data = flatten_student_for_export(selected_student_data)
                     st.json(flat_data, expanded=False)
 
                 # 4. Advanced PDF Style Settings

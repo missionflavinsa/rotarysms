@@ -17,7 +17,7 @@ if 'user_role' not in st.session_state:
 if 'user_email' not in st.session_state:
     st.session_state.user_email = None
 
-from src.views.ui_utils import inject_custom_css
+from src.views.ui_utils import inject_custom_css, inject_theme_toggle
 
 def main():
     # Ensure Firebase is initialized
@@ -47,8 +47,9 @@ def main():
         st.sidebar.markdown(f'<div style="text-align: center; margin-bottom: -20px;"><img src="data:image/png;base64,{st.session_state.org_logo}" style="max-width: 100%; max-height: 120px; border-radius: 8px;"></div>', unsafe_allow_html=True)
     else:
         st.sidebar.title(f"🏢 {st.session_state.org_name}")
-    
+        
     if st.session_state.logged_in:
+        st.sidebar.markdown('<div style="height: 1.5rem;"></div>', unsafe_allow_html=True)
         render_universal_search()
         
         st.sidebar.markdown(f'<div style="margin-top: -15px; margin-bottom: -15px;"><small>Logged in as: <b>{st.session_state.user_email}</b></small></div>', unsafe_allow_html=True)
@@ -58,6 +59,21 @@ def main():
             admin_page()
         elif st.session_state.user_role == 'teacher':
             teacher_page()
+            
+        st.sidebar.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
+        
+        # Inject custom CSS specifically to right-align the toggle
+        st.sidebar.markdown("""
+            <style>
+            [data-testid="stSidebar"] [data-testid="stToggle"] {
+                display: flex;
+                justify-content: flex-end;
+                padding-right: 0.5rem;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        inject_theme_toggle()
             
         st.sidebar.markdown("---")
         if st.sidebar.button("🚪 Logout", use_container_width=True):
