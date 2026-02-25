@@ -59,6 +59,10 @@ EXCEL_COLUMN_MAP = {
     'hab_t2_flex': 'F6 T2: Attention', 'hab_t2_ask': 'F6 T2: Asks Qs', 'hab_t2_articulate': 'F6 T2: Articulates', 'hab_t2_mindset': 'F6 T2: Growth Mindset', 'hab_t2_reflect': 'F6 T2: Reflects', 'hab_t2_norms': 'F6 T2: Follows Norms', 'hab_t2_control': 'F6 T2: Self Control'
 }
 
+def _safe_dict(d, key):
+    val = d.get(key, {})
+    return val if isinstance(val, dict) else {}
+
 def flatten_student_for_export(student_dict):
     """Flattens nested Firestore dictionary into a flat dictionary suitable for pandas."""
     flat = {}
@@ -75,23 +79,23 @@ def flatten_student_for_export(student_dict):
     flat['email'] = student_dict.get('email', '')
     
     # Insights
-    ins = student_dict.get('insights', {})
+    ins = _safe_dict(student_dict, 'insights')
     for k in ['grow_up', 'age', 'food', 'game', 'festival', 'inspire', 'idol', 'learn', 'improve', 'like', 'dislike', 'goodat', 'notgood', 'about_me', 'family']:
         flat[f'ins_{k}'] = ins.get(k, '')
         
     # Glims
-    glm = student_dict.get('glims', {})
+    glm = _safe_dict(student_dict, 'glims')
     flat['glm_notes'] = glm.get('notes', '')
     
     # Physical
-    phy = student_dict.get('physical', {})
+    phy = _safe_dict(student_dict, 'physical')
     for k in ['h1', 'hd1', 'h2', 'hd2', 'w1', 'wd1', 'w2', 'wd2', 'book', 'dislike', 'people', 'cope', 'eat', 'participate', 'know']:
         flat[f'phy_{k}'] = phy.get(k, '')
         
     # Emotional
-    emo = student_dict.get('emotional', {})
+    emo = _safe_dict(student_dict, 'emotional')
     for t in ['t1', 't2']:
-        t_data = emo.get(t, {})
+        t_data = _safe_dict(emo, t)
         for k in ['talk', 'calm', 'understand', 'better']:
             flat[f'emo_{t}_{k}'] = t_data.get(k, '')
         
@@ -100,9 +104,9 @@ def flatten_student_for_export(student_dict):
         flat[f'emo_{t}_feel'] = ", ".join([str(x) for x in feel_val]) if isinstance(feel_val, list) else str(feel_val)
             
     # Habits
-    hab = student_dict.get('habits', {})
+    hab = _safe_dict(student_dict, 'habits')
     for t in ['t1', 't2']:
-        t_data = hab.get(t, {})
+        t_data = _safe_dict(hab, t)
         for k in ['flex', 'ask', 'articulate', 'mindset', 'reflect', 'norms', 'control']:
             flat[f'hab_{t}_{k}'] = t_data.get(k, '')
             

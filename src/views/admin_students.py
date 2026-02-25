@@ -73,8 +73,8 @@ def render_students():
                         selected_student_id = student_options[selected_student_label]
                         selected_student_data = student_map[selected_student_id]
                         
-                        col1, col2 = st.columns(2)
-                        with col1:
+                        # Full width for update form
+                        with st.container():
                             with st.form(f"admin_update_stu_form"):
                                 wiz_u1, wiz_u2, wiz_u3, wiz_u4, wiz_u5, wiz_u6 = st.tabs([
                                     "1. Basic", "2. Insight", "3. Glims", 
@@ -236,10 +236,10 @@ def render_students():
                                             st.rerun()
                                         else:
                                             st.error(f"Failed to update: {up_res}")
-                        with col2:
+                        st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
+                        with st.expander("🗑️ Danger Zone - Delete Student", expanded=False):
                             with st.form(f"admin_delete_stu_form"):
-                                st.write('<div style="height: 38px;"></div>', unsafe_allow_html=True)
-                                st.warning("This action cannot be undone.")
+                                st.warning("This action cannot be undone. All student data will be permanently removed.")
                                 del_btn = st.form_submit_button("Delete Student", type="primary")
                                 
                                 if del_btn:
