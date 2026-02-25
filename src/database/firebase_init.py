@@ -213,7 +213,7 @@ def delete_class(class_id):
 # --- Students ---
 
 def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="", profile_photo="", email="", mother_name="", father_name="", 
-                insights=None, physical=None, glims=None, emotional=None, habits=None):
+                insights=None, physical=None, glims=None, emotional=None, habits=None, family=None):
     try:
         db = firestore.client()
         # Check if student with same roll_number exists in this class
@@ -234,9 +234,10 @@ def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="",
             "father_name": father_name,
             "insights": insights if insights else {},
             "physical": physical if physical else {},
-            "glims": glims if glims else {},
+            "glims": glims if glims is not None else [],
             "emotional": emotional if emotional else {},
             "habits": habits if habits else {},
+            "family": family if family else {},
             "created_at": firestore.SERVER_TIMESTAMP
         }
         _, new_ref = db.collection('students').add(payload)
@@ -259,7 +260,7 @@ def get_students_by_class(class_id):
 
 def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_number=None, dob=None, profile_photo=None, 
                    email=None, mother_name=None, father_name=None,
-                   insights=None, physical=None, glims=None, emotional=None, habits=None):
+                   insights=None, physical=None, glims=None, emotional=None, habits=None, family=None):
     try:
         db = firestore.client()
         ref = db.collection('students').document(student_id)
@@ -279,6 +280,7 @@ def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_n
         if glims is not None: data['glims'] = glims
         if emotional is not None: data['emotional'] = emotional
         if habits is not None: data['habits'] = habits
+        if family is not None: data['family'] = family
         
         if data:
             ref.update(data)
@@ -301,6 +303,7 @@ def bulk_import_students(class_id, df):
     """
     from src.utils.excel_utils import EXCEL_COLUMN_MAP
     import pandas as pd
+    import json
     try:
         db = firestore.client()
         batch = db.batch()
@@ -369,23 +372,36 @@ def bulk_import_students(class_id, df):
                 if internal_key.startswith('ins_'):
                     ins_dict[internal_key.replace('ins_', '')] = val
                 elif internal_key.startswith('phy_'):
-                    phy_dict[internal_key.replace('phy_', '')] = val
-                elif internal_key.startswith('glm_'):
-                    glm_dict[internal_key.replace('glm_', '')] = val
-                elif internal_key.startswith('emo_t1_'):
-                    if internal_key == 'emo_t1_feel':
-                        emo_dict['t1']['feel'] = [x.strip() for x in str(val).split(',')] if val else []
-                    else:
-                        emo_dict['t1'][internal_key.replace('emo_t1_', '')] = val
-                elif internal_key.startswith('emo_t2_'):
-                    if internal_key == 'emo_t2_feel':
-                        emo_dict['t2']['feel'] = [x.strip() for x in str(val).split(',')] if val else []
-                    else:
-                        emo_dict['t2'][internal_key.replace('emo_t2_', '')] = val
-                elif internal_key.startswith('hab_t1_'):
-                    hab_dict['t1'][internal_key.replace('hab_t1_', '')] = val
-                elif internal_key.startswith('hab_t2_'):
-                    hab_dict['t2'][internal_key.replace('hab_t2_', '')] = val
+                    phy_data[internal_key.replace('phy_', '')] = val
+            
+            # Emotional Arrays Builder Helper
+            def get_emo(t, k): return str(get_val(f'F5 {t.upper()}: {k}'))
+            emo_data = {
+                't1': {'talk': get_emo('t1','Talk Feeling'), 'calm': get_emo('t1','Stay Calm'), 'understand': get_emo('t1','Understand Friends'), 'better': get_emo('t1','Make Better'), 'feel': [x.strip() for x in str(get_val('F5 T1: Feel At School')).split(',') if x.strip()]},
+                't2': {'talk': get_emo('t2','Talk Feeling'), 'calm': get_emo('t2','Stay Calm'), 'understand': get_emo('t2','Understand Friends'), 'better': get_emo('t2','Make Better'), 'feel': [x.strip() for x in str(get_val('F5 T2: Feel At School')).split(',') if x.strip()]}
+            }
+            
+            # Habits Array Builder Helper
+            def get_hab(t, k): return str(get_val(f'F6 {t.upper()}: {k}'))
+            hab_data = {
+                't1': {'flex': get_hab('t1','Attention'), 'ask': get_hab('t1','Asks Qs'), 'articulate': get_hab('t1','Articulates'), 'mindset': get_hab('t1','Growth Mindset'), 'reflect': get_hab('t1','Reflects'), 'norms': get_hab('t1','Follows Norms'), 'control': get_hab('t1','Self Control')},
+                't2': {'flex': get_hab('t2','Attention'), 'ask': get_hab('t2','Asks Qs'), 'articulate': get_hab('t2','Articulates'), 'mindset': get_hab('t2','Growth Mindset'), 'reflect': get_hab('t2','Reflects'), 'norms': get_hab('t2','Follows Norms'), 'control': get_hab('t2','Self Control')}
+            }
+
+            # Family Builder Helper
+            fam_data = {
+                'photo': str(get_val('F7: Family Photo URL')),
+                'desc': str(get_val('F7: Family Desc'))
+            }
+
+            # Glims Builder Helper
+            glim_str = str(get_val('F3: Glims Gallery JSON'))
+            glim_data = []
+            try:
+                if glim_str:
+                    glim_data = json.loads(glim_str)
+            except Exception:
+                glim_data = []
 
             student_data = {
                 "class_id": class_id,
@@ -398,11 +414,12 @@ def bulk_import_students(class_id, df):
                 "email": email,
                 "mother_name": mother,
                 "father_name": father,
-                "insights": ins_dict,
-                "physical": phy_dict,
-                "glims": glm_dict,
-                "emotional": emo_dict,
-                "habits": hab_dict,
+                "insights": ins_data,
+                "physical": phy_data,
+                "glims": glim_data,
+                "emotional": emo_data,
+                "habits": hab_data,
+                "family": fam_data,
                 "updated_at": firestore.SERVER_TIMESTAMP
             }
                 

@@ -6,6 +6,7 @@ st.set_page_config(page_title="Rotary RMS", page_icon="🎓", layout="wide")
 from src.views.login import login_page
 from src.views.admin import admin_page
 from src.views.teacher import teacher_page
+from src.views.universal_search import render_universal_search
 from src.database.firebase_init import init_firebase, get_org_logo, get_org_name
 
 # Initialize session state for login
@@ -43,13 +44,14 @@ def main():
         st.session_state.org_name = get_org_name()
         
     if st.session_state.org_logo:
-        st.sidebar.markdown(f'<div style="text-align: center;"><img src="data:image/png;base64,{st.session_state.org_logo}" style="max-width: 100%; max-height: 120px; border-radius: 8px;"></div><br>', unsafe_allow_html=True)
+        st.sidebar.markdown(f'<div style="text-align: center; margin-bottom: -20px;"><img src="data:image/png;base64,{st.session_state.org_logo}" style="max-width: 100%; max-height: 120px; border-radius: 8px;"></div>', unsafe_allow_html=True)
     else:
         st.sidebar.title(f"🏢 {st.session_state.org_name}")
     
     if st.session_state.logged_in:
-        st.sidebar.write(f"Logged in as: **{st.session_state.user_email}**")
-        st.sidebar.markdown("---")
+        render_universal_search()
+        
+        st.sidebar.markdown(f'<div style="margin-top: -15px; margin-bottom: -15px;"><small>Logged in as: <b>{st.session_state.user_email}</b></small></div>', unsafe_allow_html=True)
             
         # Routing based on role (renders their specific sidebar nav first)
         if st.session_state.user_role == 'admin':

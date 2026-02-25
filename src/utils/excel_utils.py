@@ -30,8 +30,8 @@ EXCEL_COLUMN_MAP = {
     'ins_about_me': 'F2: About Me',
     'ins_family': 'F2: About Family',
     
-    # Form 3: Glims
-    'glm_notes': 'F3: Photo Captions',
+    # Form 3: Glims Gallery
+    'glm_gallery': 'F3: Glims Gallery JSON',
     
     # Form 4: Physical
     'phy_h1': 'F4: Height 1 (cm)',
@@ -56,7 +56,11 @@ EXCEL_COLUMN_MAP = {
     
     # Form 6: Habits
     'hab_t1_flex': 'F6 T1: Attention', 'hab_t1_ask': 'F6 T1: Asks Qs', 'hab_t1_articulate': 'F6 T1: Articulates', 'hab_t1_mindset': 'F6 T1: Growth Mindset', 'hab_t1_reflect': 'F6 T1: Reflects', 'hab_t1_norms': 'F6 T1: Follows Norms', 'hab_t1_control': 'F6 T1: Self Control',
-    'hab_t2_flex': 'F6 T2: Attention', 'hab_t2_ask': 'F6 T2: Asks Qs', 'hab_t2_articulate': 'F6 T2: Articulates', 'hab_t2_mindset': 'F6 T2: Growth Mindset', 'hab_t2_reflect': 'F6 T2: Reflects', 'hab_t2_norms': 'F6 T2: Follows Norms', 'hab_t2_control': 'F6 T2: Self Control'
+    'hab_t2_flex': 'F6 T2: Attention', 'hab_t2_ask': 'F6 T2: Asks Qs', 'hab_t2_articulate': 'F6 T2: Articulates', 'hab_t2_mindset': 'F6 T2: Growth Mindset', 'hab_t2_reflect': 'F6 T2: Reflects', 'hab_t2_norms': 'F6 T2: Follows Norms', 'hab_t2_control': 'F6 T2: Self Control',
+    
+    # Form 7: My Family
+    'fam_photo': 'F7: Family Photo URL',
+    'fam_desc': 'F7: Family Desc'
 }
 
 def _safe_dict(d, key):
@@ -65,6 +69,7 @@ def _safe_dict(d, key):
 
 def flatten_student_for_export(student_dict):
     """Flattens nested Firestore dictionary into a flat dictionary suitable for pandas."""
+    import json
     flat = {}
     
     # Base
@@ -83,9 +88,12 @@ def flatten_student_for_export(student_dict):
     for k in ['grow_up', 'age', 'food', 'game', 'festival', 'inspire', 'idol', 'learn', 'improve', 'like', 'dislike', 'goodat', 'notgood', 'about_me', 'family']:
         flat[f'ins_{k}'] = ins.get(k, '')
         
-    # Glims
-    glm = _safe_dict(student_dict, 'glims')
-    flat['glm_notes'] = glm.get('notes', '')
+    # Glims (now a list of images/captions)
+    glm_list = student_dict.get('glims', [])
+    try:
+        flat['glm_gallery'] = json.dumps(glm_list) if isinstance(glm_list, list) else str(glm_list)
+    except Exception:
+        flat['glm_gallery'] = ""
     
     # Physical
     phy = _safe_dict(student_dict, 'physical')
@@ -110,6 +118,11 @@ def flatten_student_for_export(student_dict):
         for k in ['flex', 'ask', 'articulate', 'mindset', 'reflect', 'norms', 'control']:
             flat[f'hab_{t}_{k}'] = t_data.get(k, '')
             
+    # Family
+    fam = _safe_dict(student_dict, 'family')
+    flat['fam_photo'] = fam.get('photo', '')
+    flat['fam_desc'] = fam.get('desc', '')
+            
     return flat
 
 def process_export_dataframe(df_students):
@@ -129,4 +142,8 @@ def process_export_dataframe(df_students):
     # Reorder precisely
     template_cols = list(EXCEL_COLUMN_MAP.values())
     export_df = export_df[template_cols]
+    
+    # Cast entirely to string to prevent PyArrow mixed-type dictionary serialization crashes in Streamlit
+    export_df = export_df.astype(str)
+    
     return export_df

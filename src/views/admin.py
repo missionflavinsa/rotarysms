@@ -15,7 +15,7 @@ def admin_page():
         "👨‍🎓 Students", 
         "📄 Result Generation",
         "⚙️ Settings"
-    ])
+    ], key="admin_nav")
     
     st.sidebar.markdown("---")
     

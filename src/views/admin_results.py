@@ -27,6 +27,12 @@ def get_available_fonts():
         "ZapfDingbats (Built-in)": "zapfdingbats"
     }
     
+    # Load Custom Local TTFs/OTFs safely
+    os.makedirs("fonts", exist_ok=True)
+    for path in glob.glob("fonts/*.ttf") + glob.glob("fonts/*.otf"):
+        name = os.path.basename(path).replace(".ttf", "").replace(".otf", "").replace("-", " ")
+        fonts[f"{name} (Custom)"] = path
+        
     # Load system TTFs safely
     for path in glob.glob("/usr/share/fonts/**/*.ttf", recursive=True):
         name = os.path.basename(path).replace(".ttf", "").replace("-", " ")
@@ -395,9 +401,27 @@ def render_admin_results():
                         st.markdown(f"**Email:** {selected_student_data.get('email', 'N/A')}")
                         st.markdown(f"**Father's Name:** {selected_student_data.get('father_name', 'N/A')}")
 
+                st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
+                with st.expander("🔍 Show Full Extended Data Payload"):
+                    from src.utils.excel_utils import flatten_student_for_export
+                    flat_data = flatten_student_for_export(selected_student_data, selected_class_data, teacher_name)
+                    st.json(flat_data, expanded=False)
+
                 # 4. Advanced PDF Style Settings
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 with st.expander("🎨 Advanced PDF Style Settings", expanded=True):
+                    upl_font = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], key="font_upl")
+                    if upl_font:
+                        if st.button("💾 Install Font Permanently"):
+                            os.makedirs("fonts", exist_ok=True)
+                            font_path = os.path.join("fonts", upl_font.name)
+                            with open(font_path, "wb") as f:
+                                f.write(upl_font.getvalue())
+                            get_available_fonts.clear()
+                            st.success(f"Successfully installed {upl_font.name}!")
+                            st.rerun()
+                                
+                    st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
                     c1, c2, c3 = st.columns(3)
                     
                     font_family_map = get_available_fonts()
@@ -454,6 +478,18 @@ def render_admin_results():
                 # Shared Style Settings
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 with st.expander("🎨 Bulk PDF Style Settings", expanded=False):
+                    upl_font_b = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], key="font_upl_b")
+                    if upl_font_b:
+                        if st.button("💾 Install Font Permanently", key="inst_btn_b"):
+                            os.makedirs("fonts", exist_ok=True)
+                            font_path = os.path.join("fonts", upl_font_b.name)
+                            with open(font_path, "wb") as f:
+                                f.write(upl_font_b.getvalue())
+                            get_available_fonts.clear()
+                            st.success(f"Successfully installed {upl_font_b.name}!")
+                            st.rerun()
+                                
+                    st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
                     c1, c2, c3 = st.columns(3)
                     font_family_map_b = get_available_fonts()
                     sel_family_b = c1.selectbox("Font Family & Style", list(font_family_map_b.keys()), key="bulk_font")

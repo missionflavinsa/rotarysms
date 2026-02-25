@@ -3,6 +3,7 @@ import pandas as pd
 import base64
 from datetime import datetime
 import io # Added import for io
+import requests
 import re # Added import for re, as it's used later for DOB validation
 from src.database.firebase_init import (get_all_classes, add_student, bulk_import_students, 
                                         get_students_by_class, update_student, delete_student, get_all_users)
@@ -38,16 +39,12 @@ def render_students():
                     st.info("No students enrolled in this class.")
                 else:
                     df_students = pd.DataFrame(students)
-                    display_cols = ['roll_number', 'name']
-                    if 'reg_number' in df_students.columns: display_cols.append('reg_number')
-                    if 'apaar_id' in df_students.columns: display_cols.append('apaar_id')
-                    if 'dob' in df_students.columns: display_cols.append('dob')
-                    if 'email' in df_students.columns: display_cols.append('email')
-                    st.dataframe(df_students[display_cols], hide_index=True, use_container_width=True)
                     
-                    # --- EXPORT TO EXCEL FEATURE ---
+                    # --- TABULAR RENDER PORT & EXCEL FEATURE ---
                     from src.utils.excel_utils import process_export_dataframe
                     export_df = process_export_dataframe(df_students)
+                    
+                    st.dataframe(export_df, hide_index=True, use_container_width=True)
                     
                     excel_buffer = io.BytesIO()
                     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
@@ -76,9 +73,9 @@ def render_students():
                         # Full width for update form
                         with st.container():
                             with st.form(f"admin_update_stu_form"):
-                                wiz_u1, wiz_u2, wiz_u3, wiz_u4, wiz_u5, wiz_u6 = st.tabs([
+                                wiz_u1, wiz_u2, wiz_u3, wiz_u4, wiz_u5, wiz_u6, wiz_u7 = st.tabs([
                                     "1. Basic", "2. Insight", "3. Glims", 
-                                    "4. Physical", "5. Feelings", "6. Habits"
+                                    "4. Physical", "5. Feelings", "6. Habits", "7. Family"
                                 ])
                                 
                                 # Helper extractors
@@ -96,9 +93,26 @@ def render_students():
                                     st.write("**Form 1: Basic Information**")
                                     u_photo = st.file_uploader("Update Profile Photo", type=["png", "jpg", "jpeg"])
                                     current_photo = selected_student_data.get('profile_photo', '')
-                                    if current_photo and current_photo.startswith('http'):
-                                        st.image(current_photo, width=100, caption="Current Photo")
-                                        
+                                    if current_photo:
+                                        try:
+                                            if current_photo.startswith('data:image') or current_photo.startswith('base64,'):
+                                                raw = current_photo.split(',')[1] if ',' in current_photo else current_photo.replace('base64,', '')
+                                                st.image(base64.b64decode(raw), width=100, caption="Current Photo")
+                                            elif current_photo.startswith('http'):
+                                                if "drive.google.com" in current_photo:
+                                                    try:
+                                                        resp = requests.get(current_photo, timeout=5)
+                                                        st.image(resp.content, width=100, caption="Current Photo")
+                                                    except Exception:
+                                                        st.markdown(f'<img src="{current_photo}" width="100" style="border-radius: 5px;">', unsafe_allow_html=True)
+                                                        st.caption("Current Photo")
+                                                else:
+                                                    st.image(current_photo, width=100, caption="Current Photo")
+                                            else:
+                                                st.image(base64.b64decode(current_photo), width=100, caption="Current Photo")
+                                        except Exception:
+                                            pass
+                                            
                                     u_name = st.text_input("Name", value=selected_student_data.get('name', ''))
                                     u_apaar = st.text_input("APAAR ID", value=selected_student_data.get('apaar_id', ''))
                                     u_reg = st.text_input("Reg No", value=selected_student_data.get('reg_number', ''))
@@ -129,8 +143,23 @@ def render_students():
                                     u_f2_family = st.text_area("About Family:", value=ins.get('family', ''), key="u_f2_15")
 
                                 with wiz_u3:
-                                    st.write("**Form 3: My Glims**")
-                                    u_f3_notes = st.text_area("Photo Captions:", value=glm.get('notes', ''), key="u_f3_1")
+                                    st.write("**Form 3: My Glims (Gallery)**")
+                                    st.write("Upload up to 5 memory photos with captions.")
+                                    glims_list = glm if isinstance(glm, list) else []
+                                    u_f3_gallery = []
+                                    for i in range(5):
+                                        st.markdown(f"**Photo {i+1}**")
+                                        existing_photo = glims_list[i].get("photo", "") if i < len(glims_list) else ""
+                                        existing_cap = glims_list[i].get("caption", "") if i < len(glims_list) else ""
+                                        
+                                        if existing_photo:
+                                            st.image(existing_photo, width=150)
+                                            
+                                        c_up1, c_up2 = st.columns(2)
+                                        f_up = c_up1.file_uploader(f"Upload Image {i+1}", type=["png", "jpg", "jpeg"], key=f"u_glm_f_{i}_{selected_student_id}")
+                                        c_up = c_up2.text_input(f"Caption {i+1}", value=existing_cap, key=f"u_glm_c_{i}_{selected_student_id}")
+                                        u_f3_gallery.append((f_up, c_up, existing_photo))
+                                        st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
                                 with wiz_u4:
                                     st.write("**Form 4: Physical & Preferences**")
@@ -188,6 +217,15 @@ def render_students():
                                     u_f6_t2_6 = c6_2.selectbox("T2: Follows norms", habit_opts, index=safe_idx(habit_opts, hab_t2.get('norms')), key="u_f6_t2_6")
                                     u_f6_t2_7 = c6_2.selectbox("T2: Self-control", habit_opts, index=safe_idx(habit_opts, hab_t2.get('control')), key="u_f6_t2_7")
                                     
+                                with wiz_u7:
+                                    st.write("**Form 7: My Family**")
+                                    fam_info = selected_student_data.get('family', {})
+                                    fam_photo = fam_info.get("photo", "")
+                                    if fam_photo:
+                                        st.image(fam_photo, width=200)
+                                    u_fam_f = st.file_uploader("Upload Family Photo", type=["png", "jpg", "jpeg"], key=f"u_fam_f_{selected_student_id}")
+                                    u_fam_c = st.text_area("About My Family:", value=fam_info.get("desc", ""), key=f"u_fam_c_{selected_student_id}")
+                                    
                                 st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
                                 upd_btn = st.form_submit_button("💾 Save Profile Updates")
                                 
@@ -214,7 +252,21 @@ def render_students():
                                                 "book": u_f4_book, "dislike": u_f4_dislike, "people": u_f4_people,
                                                 "cope": u_f4_cope, "eat": u_f4_eat, "participate": u_f4_participate, "know": u_f4_know
                                             }
-                                            p_gl = {"notes": u_f3_notes}
+                                            p_gl = []
+                                            for f_up, c_up, existing_photo in u_f3_gallery:
+                                                final_photo = existing_photo
+                                                if f_up:
+                                                    final_photo = "base64," + base64.b64encode(f_up.getvalue()).decode()
+                                                if final_photo or c_up:
+                                                    p_gl.append({"photo": final_photo, "caption": c_up})
+                                                    
+                                            p_fam = {
+                                                "photo": fam_photo,
+                                                "desc": u_fam_c
+                                            }
+                                            if u_fam_f:
+                                                p_fam["photo"] = "base64," + base64.b64encode(u_fam_f.getvalue()).decode()
+
                                             p_emo = {
                                                 "t1": {"talk": u_f5_t1_1, "calm": u_f5_t1_2, "understand": u_f5_t1_3, "better": u_f5_t1_4, "feel": emo_t1.get('feel', [])},
                                                 "t2": {"talk": u_f5_t2_1, "calm": u_f5_t2_2, "understand": u_f5_t2_3, "better": u_f5_t2_4, "feel": emo_t2.get('feel', [])}
@@ -229,7 +281,7 @@ def render_students():
                                                 apaar_id=u_apaar, reg_number=u_reg, dob=str(u_dob) if u_dob else "", 
                                                 profile_photo=photo_val, email=u_email,
                                                 mother_name=u_mother, father_name=u_father,
-                                                insights=p_ins, physical=p_phy, glims=p_gl, emotional=p_emo, habits=p_hab
+                                                insights=p_ins, physical=p_phy, glims=p_gl, emotional=p_emo, habits=p_hab, family=p_fam
                                             )
                                         if up_success:
                                             st.success("Successfully updated student.")
@@ -258,9 +310,9 @@ def render_students():
             st.write("Fill out the sections below. You can navigate between tabs before saving.")
             
             with st.form("add_student_wizard_form"):
-                wiz_t1, wiz_t2, wiz_t3, wiz_t4, wiz_t5, wiz_t6 = st.tabs([
+                wiz_t1, wiz_t2, wiz_t3, wiz_t4, wiz_t5, wiz_t6, wiz_t7 = st.tabs([
                     "1. Basic Info", "2. Learner's Insight", "3. Glims (Photos)", 
-                    "4. Physical Growth", "5. Feelings", "6. Habits"
+                    "4. Physical & Preferences", "5. Feelings", "6. Habits", "7. Family"
                 ])
                 
                 with wiz_t1:
@@ -306,9 +358,16 @@ def render_students():
                     f2_family = st.text_area("About My Family:", key="n_f2_15")
                     
                 with wiz_t3:
-                    st.write("**Form 3: My Glims**")
-                    st.info("Currently, only the main profile photo is supported. Support for a secondary photo gallery will be added in a future update.")
-                    f3_notes = st.text_area("Photo Gallery Captions (Notes):", key="n_f3_1")
+                    st.write("**Form 3: My Glims (Gallery)**")
+                    st.write("Upload up to 5 memory photos with captions.")
+                    n_f3_gallery = []
+                    for i in range(5):
+                        st.markdown(f"**Photo {i+1}**")
+                        c_up1, c_up2 = st.columns(2)
+                        f_up = c_up1.file_uploader(f"Upload Image {i+1}", type=["png", "jpg", "jpeg"], key=f"n_glm_f_{i}")
+                        c_up = c_up2.text_input(f"Caption {i+1}", key=f"n_glm_c_{i}")
+                        n_f3_gallery.append((f_up, c_up))
+                        st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
                     
                 with wiz_t4:
                     st.write("**Form 4: All About Me**")
@@ -371,6 +430,11 @@ def render_students():
                     f6_t2_6 = st.selectbox("Follows classroom norms with understanding", habit_opts, key="n_f6_t2_6")
                     f6_t2_7 = st.selectbox("Has self-control that enables learning", habit_opts, key="n_f6_t2_7")
                     
+                with wiz_t7:
+                    st.write("**Form 7: My Family**")
+                    n_fam_f = st.file_uploader("Upload Family Photo", type=["png", "jpg", "jpeg"], key="n_fam_f")
+                    n_fam_c = st.text_area("About My Family:", key="n_fam_c")
+                    
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 submit_student = st.form_submit_button("💾 Save Entire Student Profile File", type="primary")
                 
@@ -400,7 +464,20 @@ def render_students():
                                 "cope": f4_cope, "eat": f4_eat, "participate": f4_participate, "know": f4_know
                             }
                             
-                            payload_glims = {"notes": f3_notes}
+                            payload_glims = []
+                            for f_up, c_up in n_f3_gallery:
+                                final_photo = ""
+                                if f_up:
+                                    final_photo = "base64," + base64.b64encode(f_up.getvalue()).decode()
+                                if final_photo or c_up:
+                                    payload_glims.append({"photo": final_photo, "caption": c_up})
+                                    
+                            payload_family = {
+                                "photo": "",
+                                "desc": n_fam_c
+                            }
+                            if n_fam_f:
+                                payload_family["photo"] = "base64," + base64.b64encode(n_fam_f.getvalue()).decode()
                             
                             payload_emotional = {
                                 "t1": {"talk": f5_t1_1, "calm": f5_t1_2, "understand": f5_t1_3, "better": f5_t1_4, "feel": f5_t1_5},
@@ -418,7 +495,7 @@ def render_students():
                                 profile_photo=photo_b64, email=n_email,
                                 mother_name=n_mother, father_name=n_father,
                                 insights=payload_insights, physical=payload_physical,
-                                glims=payload_glims, emotional=payload_emotional, habits=payload_habits
+                                glims=payload_glims, emotional=payload_emotional, habits=payload_habits, family=payload_family
                             )
                         if s_success:
                             st.success("Successfully added student profile!")

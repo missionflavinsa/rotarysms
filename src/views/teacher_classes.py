@@ -4,6 +4,7 @@ import base64
 import re
 from datetime import datetime
 import io
+import requests
 from src.database.firebase_init import get_classes_for_teacher, get_students_by_class, update_student, delete_student, add_subject, get_subjects, update_subject, delete_subject, log_activity, bulk_import_students
 
 def render_teacher_classes(teacher_email):
@@ -37,16 +38,10 @@ def render_teacher_classes(teacher_email):
                                 
                                 with st_tab1:
                                     df_students = pd.DataFrame(students)
-                                    display_cols = ['roll_number', 'name']
-                                    if 'reg_number' in df_students.columns: display_cols.append('reg_number')
-                                    if 'apaar_id' in df_students.columns: display_cols.append('apaar_id')
-                                    if 'dob' in df_students.columns: display_cols.append('dob')
-                                    if 'email' in df_students.columns: display_cols.append('email')
-                                    st.dataframe(df_students[display_cols], hide_index=True, use_container_width=True)
-                                    
-                                    # --- EXPORT TO EXCEL FEATURE ---
+                                    # --- TABULAR RENDER PORT & EXCEL FEATURE ---
                                     from src.utils.excel_utils import process_export_dataframe
                                     export_df = process_export_dataframe(df_students)
+                                    st.dataframe(export_df, hide_index=True, use_container_width=True)
                                     
                                     excel_buffer = io.BytesIO()
                                     with pd.ExcelWriter(excel_buffer, engine='openpyxl') as writer:
@@ -76,9 +71,9 @@ def render_teacher_classes(teacher_email):
                                         # Full width for update form
                                         with st.container():
                                             with st.form(f"update_student_form_{cls['id']}"):
-                                                wiz_t1, wiz_t2, wiz_t3, wiz_t4, wiz_t5, wiz_t6 = st.tabs([
+                                                wiz_t1, wiz_t2, wiz_t3, wiz_t4, wiz_t5, wiz_t6, wiz_t7 = st.tabs([
                                                     "1. Basic", "2. Insight", "3. Glims", 
-                                                    "4. Physical", "5. Feelings", "6. Habits"
+                                                    "4. Physical", "5. Feelings", "6. Habits", "7. Family"
                                                 ])
                                                 
                                                 ins = selected_student_data.get('insights', {})
@@ -95,8 +90,25 @@ def render_teacher_classes(teacher_email):
                                                     st.write("**Form 1: Basic Information**")
                                                     u_photo = st.file_uploader("Update Profile Photo", type=["png", "jpg", "jpeg"], key=f"t_u_photo_{cls['id']}")
                                                     current_photo = selected_student_data.get('profile_photo', '')
-                                                    if current_photo and current_photo.startswith('http'):
-                                                        st.image(current_photo, width=100, caption="Current Photo")
+                                                    if current_photo:
+                                                        try:
+                                                            if current_photo.startswith('data:image') or current_photo.startswith('base64,'):
+                                                                raw = current_photo.split(',')[1] if ',' in current_photo else current_photo.replace('base64,', '')
+                                                                st.image(base64.b64decode(raw), width=100, caption="Current Photo")
+                                                            elif current_photo.startswith('http'):
+                                                                if "drive.google.com" in current_photo:
+                                                                    try:
+                                                                        resp = requests.get(current_photo, timeout=5)
+                                                                        st.image(resp.content, width=100, caption="Current Photo")
+                                                                    except Exception:
+                                                                        st.markdown(f'<img src="{current_photo}" width="100" style="border-radius: 5px;">', unsafe_allow_html=True)
+                                                                        st.caption("Current Photo")
+                                                                else:
+                                                                    st.image(current_photo, width=100, caption="Current Photo")
+                                                            else:
+                                                                st.image(base64.b64decode(current_photo), width=100, caption="Current Photo")
+                                                        except Exception:
+                                                            pass
                                                         
                                                     u_name = st.text_input("Name", value=selected_student_data.get('name', ''), key=f"t_u_name_{cls['id']}")
                                                     u_apaar = st.text_input("APAAR ID", value=selected_student_data.get('apaar_id', ''), key=f"t_u_apaar_{cls['id']}")
@@ -128,8 +140,23 @@ def render_teacher_classes(teacher_email):
                                                     u_f2_family = st.text_area("About Family:", value=ins.get('family', ''), key=f"t_u_f2_15_{cls['id']}")
 
                                                 with wiz_t3:
-                                                    st.write("**Form 3: My Glims**")
-                                                    u_f3_notes = st.text_area("Photo Captions:", value=glm.get('notes', ''), key=f"t_u_f3_1_{cls['id']}")
+                                                    st.write("**Form 3: My Glims (Gallery)**")
+                                                    st.write("Upload up to 5 memory photos with captions.")
+                                                    glims_list = glm if isinstance(glm, list) else []
+                                                    u_f3_gallery = []
+                                                    for i in range(5):
+                                                        st.markdown(f"**Photo {i+1}**")
+                                                        existing_photo = glims_list[i].get("photo", "") if i < len(glims_list) else ""
+                                                        existing_cap = glims_list[i].get("caption", "") if i < len(glims_list) else ""
+                                                        
+                                                        if existing_photo:
+                                                            st.image(existing_photo, width=150)
+                                                            
+                                                        c_up1, c_up2 = st.columns(2)
+                                                        f_up = c_up1.file_uploader(f"Upload Image {i+1}", type=["png", "jpg", "jpeg"], key=f"t_u_glm_f_{i}_{cls['id']}")
+                                                        c_up = c_up2.text_input(f"Caption {i+1}", value=existing_cap, key=f"t_u_glm_c_{i}_{cls['id']}")
+                                                        u_f3_gallery.append((f_up, c_up, existing_photo))
+                                                        st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
                                                 with wiz_t4:
                                                     st.write("**Form 4: Physical & Preferences**")
@@ -187,6 +214,15 @@ def render_teacher_classes(teacher_email):
                                                     u_f6_t2_6 = c6_2.selectbox("T2: Follows norms", habit_opts, index=safe_idx(habit_opts, hab_t2.get('norms')), key=f"t_u_f6_t2_6_{cls['id']}")
                                                     u_f6_t2_7 = c6_2.selectbox("T2: Self-control", habit_opts, index=safe_idx(habit_opts, hab_t2.get('control')), key=f"t_u_f6_t2_7_{cls['id']}")
                                                     
+                                                with wiz_t7:
+                                                    st.write("**Form 7: My Family**")
+                                                    fam_info = selected_student_data.get('family', {})
+                                                    fam_photo = fam_info.get("photo", "")
+                                                    if fam_photo:
+                                                        st.image(fam_photo, width=200)
+                                                    u_fam_f = st.file_uploader("Upload Family Photo", type=["png", "jpg", "jpeg"], key=f"t_u_fam_f_{cls['id']}")
+                                                    u_fam_c = st.text_area("About My Family:", value=fam_info.get("desc", ""), key=f"t_u_fam_c_{cls['id']}")
+                                                    
                                                 st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
                                                 upd_btn = st.form_submit_button("💾 Save Profile Updates", type="primary")
                                                 
@@ -213,7 +249,21 @@ def render_teacher_classes(teacher_email):
                                                                 "book": u_f4_book, "dislike": u_f4_dislike, "people": u_f4_people,
                                                                 "cope": u_f4_cope, "eat": u_f4_eat, "participate": u_f4_participate, "know": u_f4_know
                                                             }
-                                                            p_gl = {"notes": u_f3_notes}
+                                                            p_gl = []
+                                                            for f_up, c_up, existing_photo in u_f3_gallery:
+                                                                final_photo = existing_photo
+                                                                if f_up:
+                                                                    final_photo = "base64," + base64.b64encode(f_up.getvalue()).decode()
+                                                                if final_photo or c_up:
+                                                                    p_gl.append({"photo": final_photo, "caption": c_up})
+                                                                    
+                                                            p_fam = {
+                                                                "photo": fam_photo,
+                                                                "desc": u_fam_c
+                                                            }
+                                                            if u_fam_f:
+                                                                p_fam["photo"] = "base64," + base64.b64encode(u_fam_f.getvalue()).decode()
+
                                                             p_emo = {
                                                                 "t1": {"talk": u_f5_t1_1, "calm": u_f5_t1_2, "understand": u_f5_t1_3, "better": u_f5_t1_4, "feel": emo_t1.get('feel', [])},
                                                                 "t2": {"talk": u_f5_t2_1, "calm": u_f5_t2_2, "understand": u_f5_t2_3, "better": u_f5_t2_4, "feel": emo_t2.get('feel', [])}
@@ -222,13 +272,13 @@ def render_teacher_classes(teacher_email):
                                                                 "t1": {"flex": u_f6_t1_1, "ask": u_f6_t1_2, "articulate": u_f6_t1_3, "mindset": u_f6_t1_4, "reflect": u_f6_t1_5, "norms": u_f6_t1_6, "control": u_f6_t1_7},
                                                                 "t2": {"flex": u_f6_t2_1, "ask": u_f6_t2_2, "articulate": u_f6_t2_3, "mindset": u_f6_t2_4, "reflect": u_f6_t2_5, "norms": u_f6_t2_6, "control": u_f6_t2_7}
                                                             }
-
+                                                            
                                                             up_success, up_res = update_student(
                                                                 selected_student_id, roll_number=u_roll, name=u_name, 
                                                                 apaar_id=u_apaar, reg_number=u_reg, dob=str(u_dob) if u_dob else "", 
                                                                 profile_photo=photo_val, email=u_email,
                                                                 mother_name=u_mother, father_name=u_father,
-                                                                insights=p_ins, physical=p_phy, glims=p_gl, emotional=p_emo, habits=p_hab
+                                                                insights=p_ins, physical=p_phy, glims=p_gl, emotional=p_emo, habits=p_hab, family=p_fam
                                                             )
                                                         if up_success:
                                                             log_activity(teacher_email, "Updated Student", f"{cls.get('class_name')}-{cls.get('section')}", f"Roll: {u_roll}, Name: {u_name}")
