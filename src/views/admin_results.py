@@ -29,9 +29,11 @@ def get_available_fonts():
     
     # Load Custom Local TTFs/OTFs safely
     os.makedirs("fonts", exist_ok=True)
-    for path in glob.glob("fonts/*.ttf") + glob.glob("fonts/*.otf"):
-        name = os.path.basename(path).replace(".ttf", "").replace(".otf", "").replace("-", " ")
-        fonts[f"{name} (Custom)"] = path
+    for file_name in os.listdir("fonts"):
+        if file_name.lower().endswith((".ttf", ".otf")):
+            path = os.path.join("fonts", file_name)
+            name = file_name[:-4].replace("-", " ")
+            fonts[f"{name} (Custom)"] = path
         
     # Load system TTFs safely
     for path in glob.glob("/usr/share/fonts/**/*.ttf", recursive=True):
@@ -44,8 +46,7 @@ def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
     return tuple(int(hex_color[i:i+2], 16)/255.0 for i in (0, 2, 4))
 
-def process_profile_photo_rectangular(image_source, target_size=(201, 270)):
-    try:
+def process_profile_photo_rectangular(image_source, target_size=(201, 274)):
         if image_source.startswith("http://") or image_source.startswith("https://"):
             resp = requests.get(image_source, timeout=5)
             img_data = resp.content
@@ -76,12 +77,8 @@ def process_profile_photo_rectangular(image_source, target_size=(201, 270)):
         byte_arr = io.BytesIO()
         img.save(byte_arr, format='PNG')
         return byte_arr.getvalue()
-    except Exception as e:
-        print(f"Error processing rectangular image for PDF: {e}")
-        return None
 
 def process_profile_photo_circular(image_source, size=(140, 140)):
-    try:
         if image_source.startswith("http://") or image_source.startswith("https://"):
             resp = requests.get(image_source, timeout=5)
             img_data = resp.content
@@ -113,13 +110,10 @@ def process_profile_photo_circular(image_source, size=(140, 140)):
         byte_arr = io.BytesIO()
         output.save(byte_arr, format='PNG')
         return byte_arr.getvalue()
-    except Exception as e:
-        print(f"Error processing circular image for PDF: {e}")
-        return None
 
 def get_original_shape_mask(rect_width, rect_height):
-    doc = fitz.open("tempalates/Progress 3rd to 5th 2026.pdf")
-    page = doc[2]
+    doc = fitz.open("tempalates/Progress 3rd to 5th 2026 updated.pdf")
+    page = doc[1]
     paths = page.get_drawings()
     
     blob_path = None
@@ -130,7 +124,7 @@ def get_original_shape_mask(rect_width, rect_height):
             break
             
     if not blob_path:
-        return None
+        raise Exception("Failed to locate Red Blob vector path on Page 2.")
         
     rect = blob_path["rect"]
     out_doc = fitz.open()
@@ -161,51 +155,43 @@ def get_original_shape_mask(rect_width, rect_height):
     return mask_img, rect
 
 def process_profile_photo_original(image_source):
-    try:
-        mask_res = get_original_shape_mask(205, 274)
-        if not mask_res:
-            return None, None
-        mask_img, rect = mask_res
+    mask_img, rect = get_original_shape_mask(205, 274)
+    target_size = (int(rect.width), int(rect.height))
+    
+    if image_source.startswith("http://") or image_source.startswith("https://"):
+        resp = requests.get(image_source, timeout=5)
+        img_data = resp.content
+    else:
+        if "base64," in image_source:
+            image_source = image_source.split("base64,")[1]
+        img_data = base64.b64decode(image_source)
         
-        target_size = (int(rect.width), int(rect.height))
+    img = Image.open(io.BytesIO(img_data)).convert("RGBA")
+    
+    w, h = img.size
+    target_ratio = target_size[0] / target_size[1]
+    img_ratio = w / h
+    
+    if img_ratio > target_ratio:
+        new_w = int(target_ratio * h)
+        left = (w - new_w) / 2
+        right = left + new_w
+        img = img.crop((left, 0, right, h))
+    else:
+        new_h = int(w / target_ratio)
+        top = (h - new_h) / 2
+        bottom = top + new_h
+        img = img.crop((0, top, w, bottom))
         
-        if image_source.startswith("http://") or image_source.startswith("https://"):
-            resp = requests.get(image_source, timeout=5)
-            img_data = resp.content
-        else:
-            if "base64," in image_source:
-                image_source = image_source.split("base64,")[1]
-            img_data = base64.b64decode(image_source)
-            
-        img = Image.open(io.BytesIO(img_data)).convert("RGBA")
-        
-        w, h = img.size
-        target_ratio = target_size[0] / target_size[1]
-        img_ratio = w / h
-        
-        if img_ratio > target_ratio:
-            new_w = int(target_ratio * h)
-            left = (w - new_w) / 2
-            right = left + new_w
-            img = img.crop((left, 0, right, h))
-        else:
-            new_h = int(w / target_ratio)
-            top = (h - new_h) / 2
-            bottom = top + new_h
-            img = img.crop((0, top, w, bottom))
-            
-        img = img.resize(target_size, Image.Resampling.LANCZOS)
-        mask_img_resized = mask_img.resize(target_size, Image.Resampling.LANCZOS)
-        
-        output = Image.new("RGBA", target_size, (255, 255, 255, 0))
-        output.paste(img, (0, 0), mask_img_resized)
-        
-        byte_arr = io.BytesIO()
-        output.save(byte_arr, format='PNG')
-        return byte_arr.getvalue(), rect
-    except Exception as e:
-        print(f"Error processing original image for PDF: {e}")
-        return None, None
+    img = img.resize(target_size, Image.Resampling.LANCZOS)
+    mask_img_resized = mask_img.resize(target_size, Image.Resampling.LANCZOS)
+    
+    output = Image.new("RGBA", target_size, (255, 255, 255, 0))
+    output.paste(img, (0, 0), mask_img_resized)
+    
+    byte_arr = io.BytesIO()
+    output.save(byte_arr, format='PNG')
+    return byte_arr.getvalue(), rect
 
 @st.cache_data(ttl=15)
 def fetch_class_academic_data(class_id):
@@ -270,7 +256,7 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
     Injects student data into the predefined PDF template using PyMuPDF.
     Returns: BytesIO object containing the generated PDF
     """
-    template_path = "tempalates/Progress 3rd to 5th 2026.pdf"
+    template_path = "tempalates/Progress 3rd to 5th 2026 updated.pdf"
     
     if not os.path.exists(template_path):
         raise FileNotFoundError(f"Template not found at {template_path}")
@@ -278,49 +264,50 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
     # Open the existing PDF
     doc = fitz.open(template_path)
     
-    # We are targeting Page 3 (index 2)
-    page = doc[2] 
+    # We are targeting Page 2 (index 1)
+    page = doc[1] 
     
     # Define text insertion parameters
     color = hex_to_rgb(font_color)
     
-    target_font_alias = "F0" if font_name_or_path.endswith(".ttf") else font_name_or_path
+    target_font_alias = "F0" if font_name_or_path.lower().endswith((".ttf", ".otf")) else font_name_or_path
     
-    if font_name_or_path.endswith(".ttf"):
+    if font_name_or_path.lower().endswith((".ttf", ".otf")):
         try:
-            page.insert_font(fontname=target_font_alias, fontfile=font_name_or_path)
+            for p_idx in range(len(doc)):
+                doc[p_idx].insert_font(fontname=target_font_alias, fontfile=font_name_or_path)
         except Exception:
             target_font_alias = "helv"  # fallback if font is corrupt
     
     # Coordinates mapped from the template extraction
     
     # 1. Name of the Learner
-    page.insert_text((180, 255), str(student_data.get('name', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 256.3), str(student_data.get('name', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 2. APAAR ID/PEN
-    page.insert_text((150, 290), str(student_data.get('apaar_id', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 292.1), str(student_data.get('apaar_id', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 3. Registration/Admission Number
-    page.insert_text((250, 325), str(student_data.get('reg_number', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 327.8), str(student_data.get('reg_number', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 4. Roll No 
-    page.insert_text((100, 360), str(student_data.get('roll_number', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 363.5), str(student_data.get('roll_number', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 5. Class & Section
     class_sec_str = f"{class_data.get('class_name', '')} - {class_data.get('section', '')}"
-    page.insert_text((150, 397), class_sec_str, fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 399.2), class_sec_str, fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 6. Date of Birth
-    page.insert_text((130, 432), str(student_data.get('dob', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 435.0), str(student_data.get('dob', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 7. Class Teacher
-    page.insert_text((140, 468), str(teacher_name), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 470.7), str(teacher_name), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 8. Mother's Name
-    page.insert_text((150, 506), str(student_data.get('mother_name', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 506.4), str(student_data.get('mother_name', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 9. Father's Name
-    page.insert_text((150, 542), str(student_data.get('father_name', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
+    page.insert_text((175, 542.1), str(student_data.get('father_name', 'N/A')), fontsize=font_size, color=color, fontname=target_font_alias)
     
     # 10. Profile Photo
     profile_photo_src = student_data.get('profile_photo', '')
@@ -334,31 +321,31 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
                 circular_img_bytes = process_profile_photo_circular(profile_photo_src, size=(201, 201))
                 if circular_img_bytes:
                     cx = (378.49 + 583.42) / 2
-                    cy = (262.49 + 536.57) / 2
+                    cy = (218.93 + 493.02) / 2
                     size = 201 
                     photo_rect = fitz.Rect(cx - size/2, cy - size/2, cx + size/2, cy + size/2)
                     page.insert_image(photo_rect, stream=circular_img_bytes)
             else: # Rectangular default
-                processed_img_bytes = process_profile_photo_rectangular(profile_photo_src, target_size=(201, 270))
+                processed_img_bytes = process_profile_photo_rectangular(profile_photo_src, target_size=(201, 274))
                 if processed_img_bytes:
-                    photo_rect = fitz.Rect(378.49 + 2, 262.50 + 2, 583.43 - 2, 536.58 - 2)
+                    photo_rect = fitz.Rect(378.49 + 2, 218.93 + 2, 583.43 - 2, 493.02 - 2)
                     page.insert_image(photo_rect, stream=processed_img_bytes)
-        except Exception:
-            pass
+        except Exception as e:
+            st.error(f"Failed to load or inject profile picture: {str(e)}")
             
-    # --- ACADEMIC GRADES INJECTION (Pages 5 to 10) ---
+    # --- ACADEMIC GRADES INJECTION (Pages 4 to 9) ---
     if subject_data:
         SUBJECT_ZONES = {
-            "english": {"page": 4, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "hindi": {"page": 5, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 2000},
-            "marathi": {"page": 5, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "mathematics": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "environmental studies": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "evs": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "art": {"page": 8, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "physical education": {"page": 9, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 420},
-            "health and wellness": {"page": 9, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
-            "health & wellness": {"page": 9, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
+            "english": {"page": 3, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "hindi": {"page": 4, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 2000},
+            "marathi": {"page": 4, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "mathematics": {"page": 5, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "environmental studies": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "evs": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "art": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "physical education": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 420},
+            "health and wellness": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
+            "health & wellness": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
         }
 
         student_name_norm = str(student_data.get('name', '')).lower().strip().replace("  ", " ")
@@ -602,15 +589,16 @@ def render_admin_results():
                 # 4. Advanced PDF Style Settings
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 with st.expander("🎨 Advanced PDF Style Settings", expanded=True):
-                    upl_font = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], key="font_upl")
-                    if upl_font:
-                        if st.button("💾 Install Font Permanently"):
+                    upl_fonts = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], accept_multiple_files=True, key="font_upl")
+                    if upl_fonts:
+                        if st.button("💾 Install Fonts Permanently"):
                             os.makedirs("fonts", exist_ok=True)
-                            font_path = os.path.join("fonts", upl_font.name)
-                            with open(font_path, "wb") as f:
-                                f.write(upl_font.getvalue())
+                            for upl_font in upl_fonts:
+                                font_path = os.path.join("fonts", upl_font.name)
+                                with open(font_path, "wb") as f:
+                                    f.write(upl_font.getvalue())
                             get_available_fonts.clear()
-                            st.success(f"Successfully installed {upl_font.name}!")
+                            st.success(f"Successfully installed {len(upl_fonts)} font(s)!")
                             st.rerun()
                                 
                     st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
@@ -640,7 +628,7 @@ def render_admin_results():
                 if st.button("⚙️ Generate Final Report Card", type="primary"):
                     with st.status("Generating Report Card...", expanded=True) as status:
                         progress_bar = status.progress(0, text="Starting Generation Workflow...")
-                        st.write("Locating Template `Progress 3rd to 5th 2026.pdf`...")
+                        st.write("Locating Template `Progress 3rd to 5th 2026 updated.pdf`...")
                         progress_bar.progress(15, text="Locating Template...")
                         
                         st.write("Fetching Academic Data from Google Sheets...")
@@ -705,15 +693,16 @@ def render_admin_results():
                 # Shared Style Settings
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 with st.expander("🎨 Bulk PDF Style Settings", expanded=False):
-                    upl_font_b = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], key="font_upl_b")
-                    if upl_font_b:
-                        if st.button("💾 Install Font Permanently", key="inst_btn_b"):
+                    upl_fonts_b = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], accept_multiple_files=True, key="font_upl_b")
+                    if upl_fonts_b:
+                        if st.button("💾 Install Fonts Permanently", key="inst_btn_b"):
                             os.makedirs("fonts", exist_ok=True)
-                            font_path = os.path.join("fonts", upl_font_b.name)
-                            with open(font_path, "wb") as f:
-                                f.write(upl_font_b.getvalue())
+                            for upl_font_b in upl_fonts_b:
+                                font_path = os.path.join("fonts", upl_font_b.name)
+                                with open(font_path, "wb") as f:
+                                    f.write(upl_font_b.getvalue())
                             get_available_fonts.clear()
-                            st.success(f"Successfully installed {upl_font_b.name}!")
+                            st.success(f"Successfully installed {len(upl_fonts_b)} font(s)!")
                             st.rerun()
                                 
                     st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)

@@ -82,15 +82,16 @@ def render_teacher_results(teacher_email):
                 # 4. Advanced PDF Style Settings
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 with st.expander("🎨 Advanced PDF Style Settings", expanded=True):
-                    upl_font_t1 = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], key=f"font_upl_t1_{selected_student_data.get('id')}")
-                    if upl_font_t1:
-                        if st.button("💾 Install Font Permanently", key=f"inst_btn_t1_{selected_student_data.get('id')}"):
+                    upl_fonts_t1 = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], accept_multiple_files=True, key=f"font_upl_t1_{selected_student_data.get('id')}")
+                    if upl_fonts_t1:
+                        if st.button("💾 Install Fonts Permanently", key=f"inst_btn_t1_{selected_student_data.get('id')}"):
                             os.makedirs("fonts", exist_ok=True)
-                            font_path = os.path.join("fonts", upl_font_t1.name)
-                            with open(font_path, "wb") as f:
-                                f.write(upl_font_t1.getvalue())
+                            for upl_font_t1 in upl_fonts_t1:
+                                font_path = os.path.join("fonts", upl_font_t1.name)
+                                with open(font_path, "wb") as f:
+                                    f.write(upl_font_t1.getvalue())
                             get_available_fonts.clear()
-                            st.success(f"Successfully installed {upl_font_t1.name}!")
+                            st.success(f"Successfully installed {len(upl_fonts_t1)} font(s)!")
                             st.rerun()
                                 
                     st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)
@@ -120,7 +121,7 @@ def render_teacher_results(teacher_email):
                 if st.button("⚙️ Generate Final Report Card", type="primary", key=f"btn_gen_{selected_student_data.get('id')}"):
                     with st.status("Generating Report Card...", expanded=True) as status:
                         progress_bar = status.progress(0, text="Starting Generation Workflow...")
-                        st.write("Locating Template `Progress 3rd to 5th 2026.pdf`...")
+                        st.write("Locating Template `Progress 3rd to 5th 2026 updated.pdf`...")
                         progress_bar.progress(15, text="Locating Template...")
                         
                         st.write("Fetching Academic Data from Google Sheets...")
@@ -189,15 +190,16 @@ def render_teacher_results(teacher_email):
                 # Shared Style Settings
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 with st.expander("🎨 Bulk PDF Style Settings", expanded=False):
-                    upl_font_t2 = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], key="font_upl_t2_bulk")
-                    if upl_font_t2:
-                        if st.button("💾 Install Font Permanently", key="inst_btn_t2_bulk"):
+                    upl_fonts_t2 = st.file_uploader("Upload & Install Custom Font (.ttf / .otf)", type=["ttf", "otf"], accept_multiple_files=True, key="font_upl_t2_bulk")
+                    if upl_fonts_t2:
+                        if st.button("💾 Install Fonts Permanently", key="inst_btn_t2_bulk"):
                             os.makedirs("fonts", exist_ok=True)
-                            font_path = os.path.join("fonts", upl_font_t2.name)
-                            with open(font_path, "wb") as f:
-                                f.write(upl_font_t2.getvalue())
+                            for upl_font_t2 in upl_fonts_t2:
+                                font_path = os.path.join("fonts", upl_font_t2.name)
+                                with open(font_path, "wb") as f:
+                                    f.write(upl_font_t2.getvalue())
                             get_available_fonts.clear()
-                            st.success(f"Successfully installed {upl_font_t2.name}!")
+                            st.success(f"Successfully installed {len(upl_fonts_t2)} font(s)!")
                             st.rerun()
                                 
                     st.write('<div style="height: 10px;"></div>', unsafe_allow_html=True)

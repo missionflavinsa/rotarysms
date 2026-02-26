@@ -59,7 +59,7 @@ def sign_in(email, password):
             return None
     return None
 
-def create_user(email, password, name="", profile_photo=""):
+def create_user(email, password, name="", profile_photo="", signature=""):
     try:
         user = auth.create_user(
             email=email,
@@ -72,6 +72,7 @@ def create_user(email, password, name="", profile_photo=""):
             "email": email,
             "name": name,
             "profile_photo": profile_photo,
+            "signature": signature,
             "created_at": firestore.SERVER_TIMESTAMP
         })
         
@@ -90,7 +91,8 @@ def get_all_users():
                 "email": user.email,
                 "created_at": user.user_metadata.creation_timestamp,
                 "name": "",
-                "profile_photo": ""
+                "profile_photo": "",
+                "signature": ""
             }
             
             # Enrich with Firestore metadata if available
@@ -99,13 +101,14 @@ def get_all_users():
                 meta = doc.to_dict()
                 user_data["name"] = meta.get("name", "")
                 user_data["profile_photo"] = meta.get("profile_photo", "")
+                user_data["signature"] = meta.get("signature", "")
                 
             users.append(user_data)
         return True, users
     except Exception as e:
         return False, str(e)
 
-def update_user(uid, new_email=None, new_password=None, name=None, profile_photo=None):
+def update_user(uid, new_email=None, new_password=None, name=None, profile_photo=None, signature=None):
     try:
         kwargs = {}
         if new_email:
@@ -122,6 +125,7 @@ def update_user(uid, new_email=None, new_password=None, name=None, profile_photo
         if new_email: meta_data["email"] = new_email
         if name is not None: meta_data["name"] = name
         if profile_photo is not None: meta_data["profile_photo"] = profile_photo
+        if signature is not None: meta_data["signature"] = signature
         
         if meta_data:
             db.collection('users').document(uid).set(meta_data, merge=True)
@@ -642,6 +646,26 @@ def update_org_logo(base64_string):
             "updated_at": firestore.SERVER_TIMESTAMP
         }, merge=True)
         return True, "Logo updated successfully"
+    except Exception as e:
+        return False, str(e)
+
+def get_org_settings():
+    try:
+        db = firestore.client()
+        doc = db.collection('settings').document('organization').get()
+        if doc.exists:
+            return True, doc.to_dict()
+        return True, {}
+    except Exception as e:
+        return False, str(e)
+
+def update_org_settings(settings_dict):
+    try:
+        db = firestore.client()
+        ref = db.collection('settings').document('organization')
+        settings_dict["updated_at"] = firestore.SERVER_TIMESTAMP
+        ref.set(settings_dict, merge=True)
+        return True, "Settings updated successfully"
     except Exception as e:
         return False, str(e)
 
