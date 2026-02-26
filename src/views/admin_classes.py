@@ -129,64 +129,77 @@ def render_classes():
                                                 log_activity(st.session_state.get('user_email', 'Admin'), "Deleted Subject", f"{selected_class_data.get('class_name')}-{selected_class_data.get('section')}", f"Removed Subject: {sub.get('name')}")
                                             st.rerun()
                                                 
-                                    # Form to update/save the URL
+                                    # Form to update/save the URLs
                                     with st.form(f"admin_upd_url_form_{sub['id']}"):
-                                        cur_url = st.text_input("Google Sheet URL", value=sub.get('sheet_url', ''), placeholder="https://docs.google.com/spreadsheets/d/...")
-                                        save_url_btn = st.form_submit_button("Save Sheet URL")
+                                        t1_col, t2_col = st.columns(2)
+                                        with t1_col:
+                                            url_t1 = st.text_input("Term 1 Sheet URL", value=sub.get('sheet_url_t1', ''), placeholder="https://docs.google.com/spreadsheets/d/...")
+                                        with t2_col:
+                                            url_t2 = st.text_input("Term 2 Sheet URL", value=sub.get('sheet_url_t2', ''), placeholder="https://docs.google.com/spreadsheets/d/...")
+                                            
+                                        save_url_btn = st.form_submit_button("Save Sheet URLs", use_container_width=True)
                                         if save_url_btn:
-                                            with st.spinner("Saving..."):
-                                                update_subject(sub['id'], sheet_url=cur_url)
-                                                log_activity(st.session_state.get('user_email', 'Admin'), "Saved Sheet URL", f"{selected_class_data.get('class_name')}-{selected_class_data.get('section')}", f"Subject: {sub.get('name')}")
-                                            st.success("URL Saved!")
+                                            with st.spinner("Saving URLs..."):
+                                                update_subject(sub['id'], sheet_url_t1=url_t1, sheet_url_t2=url_t2)
+                                                log_activity(st.session_state.get('user_email', 'Admin'), "Saved Sheet URLs", f"{selected_class_data.get('class_name')}-{selected_class_data.get('section')}", f"Subject: {sub.get('name')}")
+                                            st.success("URLs Saved!")
                                             st.rerun()
                                     
-                                    # If URL is saved, show the fetching logic
-                                    saved_url = sub.get('sheet_url', '')
-                                    if saved_url:
-                                        try:
-                                            if "/d/" in saved_url:
-                                                doc_id = saved_url.split("/d/")[1].split("/")[0]
-                                                export_url = f"https://docs.google.com/spreadsheets/d/{doc_id}/export?format=xlsx"
-                                                
-                                                cache_key = f"admin_db_tabs_{sub['id']}_{doc_id}"
-                                                if cache_key not in st.session_state:
-                                                    st.session_state[cache_key] = None
-                                                    
-                                                col_fetch, col_clear = st.columns([2, 1])
-                                                with col_fetch:
-                                                    if st.button("Connect & Fetch Tabs", type="primary", key=f"admin_fetch_tabs_{sub['id']}"):
-                                                        with st.spinner(f"Downloading {sub['name']} Sheet..."):
-                                                            try:
-                                                                raw_dict = pd.read_excel(export_url, sheet_name=None)
-                                                                clean_dict = {}
-                                                                for t_name, df in raw_dict.items():
-                                                                    clean_dict[t_name] = df.fillna("").astype(str)
-                                                                st.session_state[cache_key] = clean_dict
-                                                                st.success("Successfully fetched workbook!")
-                                                                st.rerun()
-                                                            except Exception as e:
-                                                                st.error(f"Error accessing sheet data: {e} - Check link permissions.")
-                                                with col_clear:
-                                                    if st.session_state[cache_key] is not None:
-                                                        if st.button("Clear Data", key=f"admin_clear_tabs_{sub['id']}"):
+                                    # Fetching Logic for both terms
+                                    term_tabs = st.tabs(["Term 1 Data", "Term 2 Data"])
+                                    
+                                    for t_idx, t_name in enumerate(["Term 1", "Term 2"]):
+                                        with term_tabs[t_idx]:
+                                            term_key = 'sheet_url_t1' if t_idx == 0 else 'sheet_url_t2'
+                                            saved_url = sub.get(term_key, '')
+                                            
+                                            if saved_url:
+                                                try:
+                                                    if "/d/" in saved_url:
+                                                        doc_id = saved_url.split("/d/")[1].split("/")[0]
+                                                        export_url = f"https://docs.google.com/spreadsheets/d/{doc_id}/export?format=xlsx"
+                                                        
+                                                        cache_key = f"admin_db_tabs_{sub['id']}_{t_idx}_{doc_id}"
+                                                        if cache_key not in st.session_state:
                                                             st.session_state[cache_key] = None
-                                                            st.rerun()
                                                             
-                                                if st.session_state[cache_key] is not None:
-                                                    workbook_dict = st.session_state[cache_key]
-                                                    tab_names = list(workbook_dict.keys())
-                                                    
-                                                    selected_tab = st.selectbox("Select Target Tab to View", options=tab_names, key=f"admin_sel_tab_{sub['id']}")
-                                                    if selected_tab:
-                                                        df_results = workbook_dict[selected_tab]
-                                                        if df_results.empty:
-                                                            st.warning(f"The tab '{selected_tab}' appears to be empty.")
-                                                        else:
-                                                            st.dataframe(df_results, hide_index=True, use_container_width=True)
+                                                        col_fetch, col_clear = st.columns([2, 1])
+                                                        with col_fetch:
+                                                            if st.button(f"Fetch {t_name} Tabs", type="primary", key=f"admin_fetch_tabs_{sub['id']}_{t_idx}"):
+                                                                with st.spinner(f"Downloading {t_name}..."):
+                                                                    try:
+                                                                        raw_dict = pd.read_excel(export_url, sheet_name=None)
+                                                                        clean_dict = {}
+                                                                        for s_name, df in raw_dict.items():
+                                                                            clean_dict[s_name] = df.fillna("").astype(str)
+                                                                        st.session_state[cache_key] = clean_dict
+                                                                        st.success("Successfully fetched workbook!")
+                                                                        st.rerun()
+                                                                    except Exception as e:
+                                                                        st.error(f"Error accessing sheet data: {e} - Check link permissions.")
+                                                        with col_clear:
+                                                            if st.session_state[cache_key] is not None:
+                                                                if st.button("Clear Data", key=f"admin_clear_tabs_{sub['id']}_{t_idx}"):
+                                                                    st.session_state[cache_key] = None
+                                                                    st.rerun()
+                                                                    
+                                                        if st.session_state[cache_key] is not None:
+                                                            workbook_dict = st.session_state[cache_key]
+                                                            tab_names = list(workbook_dict.keys())
+                                                            
+                                                            selected_tab = st.selectbox(f"Select Target Tab to View ({t_name})", options=tab_names, key=f"admin_sel_tab_{sub['id']}_{t_idx}")
+                                                            if selected_tab:
+                                                                df_results = workbook_dict[selected_tab]
+                                                                if df_results.empty:
+                                                                    st.warning(f"The tab '{selected_tab}' appears to be empty.")
+                                                                else:
+                                                                    st.dataframe(df_results, hide_index=True, use_container_width=True)
+                                                    else:
+                                                        st.warning("Invalid Google Sheet URL format. Please paste the full URL containing '/d/...'.")
+                                                except Exception as main_e:
+                                                    st.error(f"An unexpected error occurred: {main_e}")
                                             else:
-                                                st.warning("Invalid Google Sheet URL format. Please paste the full URL containing '/d/...'.")
-                                        except Exception as main_e:
-                                            st.error(f"An unexpected error occurred: {main_e}")
+                                                st.info(f"Please save a Google Sheet URL for {t_name} above to fetch data.")
                     else:
                         st.error("Failed to load subjects.")
     else:

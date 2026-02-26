@@ -49,7 +49,8 @@ def render_dashboard():
                     for sub in subjects:
                         active_subjects_data.append({
                             "Subject Name": sub.get('name'),
-                            "Google Sheet URL": sub.get('sheet_url', ''),
+                            "Term 1 URL": sub.get('sheet_url_t1', ''),
+                            "Term 2 URL": sub.get('sheet_url_t2', ''),
                             "Class": c_label,
                             "Teacher": t_email
                         })
@@ -58,7 +59,7 @@ def render_dashboard():
     total_classes = len(active_classes_data)
     total_students = len(active_students_data)
     total_subjects = len(active_subjects_data)
-    active_sheet_links = sum(1 for sub in active_subjects_data if str(sub.get('Google Sheet URL', '')).strip() != "")
+    active_sheet_links = sum(1 for sub in active_subjects_data if str(sub.get('Term 1 URL', '')).strip() != "" or str(sub.get('Term 2 URL', '')).strip() != "")
                     
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     m_col1.metric("Assigned Classes", total_classes)

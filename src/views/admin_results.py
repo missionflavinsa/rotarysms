@@ -207,7 +207,65 @@ def process_profile_photo_original(image_source):
         print(f"Error processing original image for PDF: {e}")
         return None, None
 
-def generate_report_card(student_data, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular"):
+@st.cache_data(ttl=15)
+def fetch_class_academic_data(class_id):
+    from src.database.firebase_init import get_subjects
+    sub_success, subjects = get_subjects(class_id)
+    subject_map = {}
+    if sub_success and subjects:
+        import pandas as pd
+        for sub in subjects:
+            sub_name = sub.get("name")
+            subject_map[sub_name] = {"t1": None, "t2": None}
+            
+            for term_key, dict_key in [("sheet_url_t1", "t1"), ("sheet_url_t2", "t2")]:
+                url = sub.get(term_key, "")
+                if url and "/d/" in url:
+                    doc_id = url.split("/d/")[1].split("/")[0]
+                    export_url = f"https://docs.google.com/spreadsheets/d/{doc_id}/export?format=xlsx"
+                    try:
+                        raw_dict = pd.read_excel(export_url, sheet_name=None)
+                        target_sheet = None
+                        for k in raw_dict.keys():
+                            if str(k).strip().lower() == "all grades":
+                                target_sheet = k
+                                break
+                                
+                        if target_sheet:
+                            df = raw_dict[target_sheet]
+                            header_idx = -1
+                            for i, row in df.iterrows():
+                                # In the new Google Sheet format (with merged headers), 
+                                # the actual grades (C1.1, C1.2) are on a lower row than the "Name of Student" text.
+                                # Let's search for a row that has C-codes in it so we get the correct horizontal layer.
+                                has_grades = False
+                                for val in row.values:
+                                    val_str = str(val).strip().upper()
+                                    if val_str in ["C1.1", "C1.2", "C1.3", "C2.1", "C2.2"]:
+                                        has_grades = True
+                                        break
+                                
+                                if has_grades:
+                                    header_idx = i
+                                    break
+                                    
+                            if header_idx != -1:
+                                # Overwrite the first two columns of this grade row to be explicitly ROLL and NAME
+                                # since they might be 'Unnamed: X' due to the merged cell above them.
+                                new_cols = [str(c).upper().strip().replace(" ", "") for c in df.iloc[header_idx]]
+                                if len(new_cols) >= 2:
+                                    new_cols[0] = "ROLL"
+                                    new_cols[1] = "NAME"
+                                df.columns = new_cols
+                                df = df[header_idx+1:].reset_index(drop=True)
+                                # Fill nan to empty string
+                                subject_map[sub_name][dict_key] = df.fillna("").astype(str)
+                    except Exception as e:
+                        st.error(f"Error fetching sheet for {sub_name} - {dict_key}: {e}. Ensure the Google Sheet link is viewable to 'Anyone with the link'.")
+                        print(f"Error fetching sheet for {sub_name} - {dict_key}: {e}")
+    return subject_map
+
+def generate_report_card(student_data, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular", subject_data=None):
     """
     Injects student data into the predefined PDF template using PyMuPDF.
     Returns: BytesIO object containing the generated PDF
@@ -287,6 +345,114 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
                     page.insert_image(photo_rect, stream=processed_img_bytes)
         except Exception:
             pass
+            
+    # --- ACADEMIC GRADES INJECTION (Pages 5 to 10) ---
+    if subject_data:
+        SUBJECT_ZONES = {
+            "english": {"page": 4, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "hindi": {"page": 5, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 2000},
+            "marathi": {"page": 5, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "mathematics": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "environmental studies": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "evs": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "art": {"page": 8, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
+            "physical education": {"page": 9, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 420},
+            "health and wellness": {"page": 9, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
+            "health & wellness": {"page": 9, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
+        }
+
+        student_name_norm = str(student_data.get('name', '')).lower().strip().replace("  ", " ")
+        student_roll_norm = str(student_data.get('roll_number', '')).strip()
+        if student_roll_norm.endswith(".0"):
+            student_roll_norm = student_roll_norm[:-2]
+            
+        def get_student_row(df):
+            if df is None: return None
+            for _, row in df.iterrows():
+                sheet_roll = str(row.values[0]).strip()
+                if sheet_roll.endswith(".0"): sheet_roll = sheet_roll[:-2]
+                sheet_name = str(row.values[1]).lower().strip().replace("  ", " ")
+                if (student_roll_norm and sheet_roll == student_roll_norm) or \
+                   (student_name_norm and (student_name_norm in sheet_name or sheet_name in student_name_norm)):
+                    return row
+            return None
+
+        for s_name, s_payload in subject_data.items():
+            s_key = s_name.lower().strip()
+            
+            zone = None
+            for z_key, z_val in SUBJECT_ZONES.items():
+                if z_key in s_key or s_key in z_key:
+                    zone = z_val
+                    break
+            
+            if not zone:
+                continue
+                
+            p = doc[zone["page"]]
+            term1_df = s_payload.get("t1")
+            term2_df = s_payload.get("t2")
+            
+            t1_row = get_student_row(term1_df)
+            t2_row = get_student_row(term2_df)
+            
+            # Extract vector graphics to find true cell boundaries
+            vector_y = set()
+            for d in p.get_drawings():
+                for item in d["items"]:
+                    if item[0] == "l" and abs(item[1].y - item[2].y) < 2:
+                        vector_y.add(round(item[1].y, 1))
+                    elif item[0] == "re":
+                        vector_y.add(round(item[1].y0, 1))
+                        vector_y.add(round(item[1].y1, 1))
+            vector_y = sorted(list(vector_y))
+            
+            all_codes = set()
+            if t1_row is not None: all_codes.update(term1_df.columns)
+            if t2_row is not None: all_codes.update(term2_df.columns)
+            
+            for cg_code in all_codes:
+                cg_code = str(cg_code).strip()
+                if not cg_code.startswith("C") or "." not in cg_code:
+                    continue
+                    
+                rects = p.search_for(cg_code)
+                for r in rects:
+                    if zone["x_min"] <= r.x0 <= zone["x_max"] and zone["y_min"] <= r.y0 <= zone["y_max"]:
+                        # Vertically center text based on the physical vector cell boundaries
+                        cy = (r.y0 + r.y1) / 2.0
+                        
+                        above_lines = [y for y in vector_y if y < cy]
+                        below_lines = [y for y in vector_y if y > cy]
+                        
+                        if above_lines and below_lines:
+                            cell_top = max(above_lines)
+                            cell_bottom = min(below_lines)
+                            true_cy = (cell_top + cell_bottom) / 2.0
+                        else:
+                            true_cy = cy
+
+                        y_pos = true_cy + (font_size * 0.33)  # adjust baseline 
+                        
+                        if r.x0 < 595:
+                            t1_center = 469
+                            t2_center = 528
+                        else:
+                            t1_center = 1056
+                            t2_center = 1115
+                            
+                        if t1_row is not None and cg_code in term1_df.columns:
+                            g1 = str(t1_row[cg_code]).strip()
+                            if g1 and g1.lower() != 'nan':
+                                offset_x = len(g1) * font_size * 0.28
+                                p.insert_text((t1_center - offset_x, y_pos), g1, fontsize=font_size, color=color, fontname=target_font_alias)
+                                
+                        if t2_row is not None and cg_code in term2_df.columns:
+                            g2 = str(t2_row[cg_code]).strip()
+                            if g2 and g2.lower() != 'nan':
+                                offset_x = len(g2) * font_size * 0.28
+                                p.insert_text((t2_center - offset_x, y_pos), g2, fontsize=font_size, color=color, fontname=target_font_alias)
+                        break
     
     # Save the modified PDF to an in-memory buffer
     pdf_bytes = io.BytesIO()
@@ -296,23 +462,38 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
     pdf_bytes.seek(0)
     return pdf_bytes
 
-def get_pdf_preview(student_data, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular"):
-    pdf_bytes = generate_report_card(student_data, class_data, teacher_name, font_name_or_path, font_size, font_color, photo_shape)
+def get_pdf_preview(student_data, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular", subject_data=None):
+    pdf_bytes = generate_report_card(student_data, class_data, teacher_name, font_name_or_path, font_size, font_color, photo_shape, subject_data)
     doc = fitz.open("pdf", pdf_bytes)
-    page = doc[2] # we inserted into page 3
-    pix = page.get_pixmap(dpi=150)
-    img_bytes = pix.tobytes("png")
+    
+    images = []
+    for i in range(len(doc)):
+        page = doc[i]
+        pix = page.get_pixmap(dpi=120)
+        images.append(pix.tobytes("png"))
+        
     doc.close()
-    return img_bytes
+    return images
 
-def generate_class_bulk_report_merged(students_list, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular"):
+def generate_class_bulk_report_merged(students_list, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular", progress_bar=None, status_text=None, subject_data=None):
     merged_pdf = fitz.open()
+    total_stu = len(students_list)
 
-    for student in students_list:
-        pdf_bytes = generate_report_card(student, class_data, teacher_name, font_name_or_path, font_size, font_color, photo_shape)
+    for idx, student in enumerate(students_list):
+        if status_text:
+            status_text.write(f"Generating PDF for Roll No: {student.get('roll_number')} - {student.get('name')} ...")
+            
+        pdf_bytes = generate_report_card(student, class_data, teacher_name, font_name_or_path, font_size, font_color, photo_shape, subject_data)
         student_doc = fitz.open("pdf", pdf_bytes)
         merged_pdf.insert_pdf(student_doc)
         student_doc.close()
+        
+        if progress_bar:
+            pct = int(((idx + 1) / total_stu) * 100)
+            progress_bar.progress(pct, text=f"Completed {idx+1}/{total_stu} ({pct}%)")
+            
+    if status_text:
+        status_text.write("Merging all generated PDFs into a single file...")
         
     final_bytes = io.BytesIO()
     merged_pdf.save(final_bytes)
@@ -320,14 +501,25 @@ def generate_class_bulk_report_merged(students_list, class_data, teacher_name, f
     final_bytes.seek(0)
     return final_bytes
 
-def generate_class_bulk_report_zip(students_list, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular"):
+def generate_class_bulk_report_zip(students_list, class_data, teacher_name, font_name_or_path="helv", font_size=11, font_color="#000000", photo_shape="Rectangular", progress_bar=None, status_text=None, subject_data=None):
     zip_buffer = io.BytesIO()
+    total_stu = len(students_list)
     
     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
-        for student in students_list:
-            pdf_bytes = generate_report_card(student, class_data, teacher_name, font_name_or_path, font_size, font_color, photo_shape)
+        for idx, student in enumerate(students_list):
+            if status_text:
+                status_text.write(f"Generating PDF for Roll No: {student.get('roll_number')} - {student.get('name')} ...")
+                
+            pdf_bytes = generate_report_card(student, class_data, teacher_name, font_name_or_path, font_size, font_color, photo_shape, subject_data)
             file_name = f"Report_Card_{student.get('roll_number')}_{student.get('name').replace(' ', '_')}.pdf"
             zip_file.writestr(file_name, pdf_bytes.getvalue())
+            
+            if progress_bar:
+                pct = int(((idx + 1) / total_stu) * 100)
+                progress_bar.progress(pct, text=f"Completed {idx+1}/{total_stu} ({pct}%)")
+                
+    if status_text:
+        status_text.write("Packaging final PDF files into ZIP Archive...")
             
     zip_buffer.seek(0)
     return zip_buffer
@@ -436,23 +628,52 @@ def render_admin_results():
                     target_fontname = font_family_map[sel_family]
                     
                     if st.button("👁️ Generate Live Preview"):
-                        with st.spinner("Rendering PDF Preview..."):
-                            preview_img = get_pdf_preview(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape)
-                            st.image(preview_img, caption="Page 3 Live Preview", use_container_width=True)
+                        with st.spinner("Fetching Academic Grades from Google Sheets & Rendering Full Preview..."):
+                            pre_data = fetch_class_academic_data(selected_class_id)
+                            preview_imgs = get_pdf_preview(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape, pre_data)
+                            for idx, img_bytes in enumerate(preview_imgs):
+                                st.image(img_bytes, caption=f"Page {idx+1} Preview", use_container_width=True)
 
                 # 5. Generation & Download Action
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 
                 if st.button("⚙️ Generate Final Report Card", type="primary"):
                     with st.status("Generating Report Card...", expanded=True) as status:
+                        progress_bar = status.progress(0, text="Starting Generation Workflow...")
                         st.write("Locating Template `Progress 3rd to 5th 2026.pdf`...")
+                        progress_bar.progress(15, text="Locating Template...")
+                        
+                        st.write("Fetching Academic Data from Google Sheets...")
+                        sub_data = fetch_class_academic_data(selected_class_id)
+                        progress_bar.progress(40, text="Academic Data Fetched.")
+                        
+                        with st.container(border=True):
+                            st.write("🛠️ **DEBUG: Fetched Sheet Data (Check Columns)**")
+                            if not sub_data:
+                                st.warning("No subject links provided or data failed to fetch.")
+                            else:
+                                for sub_k, sub_v in sub_data.items():
+                                    t1_df = sub_v.get("t1")
+                                    t2_df = sub_v.get("t2")
+                                    t1_cols = t1_df.columns.tolist() if getattr(t1_df, "columns", None) is not None else "None"
+                                    t2_cols = t2_df.columns.tolist() if getattr(t2_df, "columns", None) is not None else "None"
+                                    st.write(f"**{sub_k}**:")
+                                    st.write(f"- Term 1 Columns: {t1_cols}")
+                                    st.write(f"- Term 2 Columns: {t2_cols}")
+                        
                         st.write("Extracting Student Profile Data...")
-                        st.write("Mapping coordinates to Page 3...")
+                        progress_bar.progress(55, text="Profile Data Extracted.")
+                        
+                        st.write("Mapping coordinates to Page 3 & Academic Pages 5-10...")
+                        progress_bar.progress(70, text="Injecting Data via PyMuPDF...")
                         
                         try:
-                            pdf_buffer = generate_report_card(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape)
+                            pdf_buffer = generate_report_card(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape, sub_data)
                             st.write("Injecting Data Streams...")
+                            progress_bar.progress(90, text="Finalizing PDF Document...")
+                            
                             st.write("Finalizing PDF Document...")
+                            progress_bar.progress(100, text="Completed!")
                             status.update(label="Report Card Generated Successfully!", state="complete", expanded=False)
                             
                             file_name = f"Report_Card_{selected_student_data.get('roll_number')}_{selected_student_data.get('name').replace(' ', '_')}.pdf"
@@ -466,6 +687,12 @@ def render_admin_results():
                                 type="secondary"
                             )
                             st.balloons()
+                            
+                            # Render Final PDF in Browser
+                            st.subheader("Final Generated PDF Preview")
+                            base64_pdf = base64.b64encode(pdf_buffer.getvalue()).decode('utf-8')
+                            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800" type="application/pdf"></iframe>'
+                            st.markdown(pdf_display, unsafe_allow_html=True)
                             
                         except Exception as e:
                             status.update(label="Failed to generate report card.", state="error")
@@ -509,14 +736,18 @@ def render_admin_results():
                     with st.status("Generating Bulk Report Cards...", expanded=True) as status:
                         try:
                             st.write(f"Processing {len(students)} students...")
+                            st.write("Fetching Academic Data from Google Sheets...")
+                            sub_data = fetch_class_academic_data(selected_class_id)
                             
                             is_zip = "ZIP Archive" in export_format
                             if is_zip:
-                                file_buffer = generate_class_bulk_report_zip(students, selected_class_data, teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b)
+                                progress_bar = status.progress(0, text="Starting ZIP generation...")
+                                file_buffer = generate_class_bulk_report_zip(students, selected_class_data, teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b, progress_bar=progress_bar, status_text=status, subject_data=sub_data)
                                 file_name = f"Bulk_Reports_Class_{selected_class_data.get('class_name')}_{selected_class_data.get('section')}.zip"
                                 mime_type = "application/zip"
                             else:
-                                file_buffer = generate_class_bulk_report_merged(students, selected_class_data, teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b)
+                                progress_bar = status.progress(0, text="Starting Merged PDF generation...")
+                                file_buffer = generate_class_bulk_report_merged(students, selected_class_data, teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b, progress_bar=progress_bar, status_text=status, subject_data=sub_data)
                                 file_name = f"Bulk_Reports_Class_{selected_class_data.get('class_name')}_{selected_class_data.get('section')}.pdf"
                                 mime_type = "application/pdf"
                                 

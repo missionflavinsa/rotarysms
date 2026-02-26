@@ -24,7 +24,7 @@ def render_teacher_dashboard(teacher_email):
             sub_success, subjects = get_subjects(c['id'])
             if sub_success:
                 total_subjects += len(subjects)
-                active_sheets += sum(1 for sub in subjects if sub.get('sheet_url', '').strip() != "")
+                active_sheets += sum(1 for sub in subjects if sub.get('sheet_url_t1', '').strip() != "" or sub.get('sheet_url_t2', '').strip() != "")
                 
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
     with st.container(border=True):

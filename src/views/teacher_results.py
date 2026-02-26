@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from src.views.admin_results import get_available_fonts, get_pdf_preview, generate_report_card, generate_class_bulk_report_merged, generate_class_bulk_report_zip
+from src.views.admin_results import get_available_fonts, get_pdf_preview, generate_report_card, generate_class_bulk_report_merged, generate_class_bulk_report_zip, fetch_class_academic_data
 from src.database.firebase_init import get_classes_for_teacher, get_students_by_class, get_all_users
 
 def render_teacher_results(teacher_email):
@@ -108,24 +108,55 @@ def render_teacher_results(teacher_email):
                     target_fontname = font_family_map[sel_family]
                     
                     if st.button("👁️ Generate Live Preview", key=f"prev_gen_{selected_student_data.get('id')}"):
-                        with st.spinner("Rendering PDF Preview..."):
-                            preview_img = get_pdf_preview(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape)
-                            st.image(preview_img, caption="Page 3 Live Preview", use_container_width=True)
+                        with st.spinner("Fetching Academic Grades from Google Sheets & Rendering Full Preview..."):
+                            pre_data = fetch_class_academic_data(selected_class_id)
+                            preview_imgs = get_pdf_preview(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape, pre_data)
+                            for idx, img_bytes in enumerate(preview_imgs):
+                                st.image(img_bytes, caption=f"Page {idx+1} Preview", use_container_width=True)
 
                 # 5. Generation & Download Action
                 st.write('<div style="height: 20px;"></div>', unsafe_allow_html=True)
                 
                 if st.button("⚙️ Generate Final Report Card", type="primary", key=f"btn_gen_{selected_student_data.get('id')}"):
                     with st.status("Generating Report Card...", expanded=True) as status:
+                        progress_bar = status.progress(0, text="Starting Generation Workflow...")
                         st.write("Locating Template `Progress 3rd to 5th 2026.pdf`...")
+                        progress_bar.progress(15, text="Locating Template...")
+                        
+                        st.write("Fetching Academic Data from Google Sheets...")
+                        sub_data = fetch_class_academic_data(selected_class_id)
+                        progress_bar.progress(40, text="Academic Data Fetched.")
+                        
+                        with st.container(border=True):
+                            st.write("🛠️ **DEBUG: Fetched Sheet Data (Check Columns)**")
+                            if not sub_data:
+                                st.warning("No subject links provided or data failed to fetch.")
+                            else:
+                                for sub_k, sub_v in sub_data.items():
+                                    t1_df = sub_v.get("t1")
+                                    t2_df = sub_v.get("t2")
+                                    t1_cols = t1_df.columns.tolist() if getattr(t1_df, "columns", None) is not None else "None"
+                                    t2_cols = t2_df.columns.tolist() if getattr(t2_df, "columns", None) is not None else "None"
+                                    st.write(f"**{sub_k}**:")
+                                    st.write(f"- Term 1 Columns: {t1_cols}")
+                                    st.write(f"- Term 2 Columns: {t2_cols}")
+                        
                         st.write("Extracting Student Profile Data...")
-                        st.write("Mapping coordinates to Page 3...")
+                        progress_bar.progress(55, text="Profile Data Extracted.")
+                        
+                        st.write("Mapping coordinates to Page 3 & Academic Pages 5-10...")
+                        progress_bar.progress(70, text="Injecting Data via PyMuPDF...")
                         
                         try:
                             # Re-use the generation logic from admin results
-                            pdf_buffer = generate_report_card(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape)
+                            pdf_buffer = generate_report_card(selected_student_data, selected_class_data, teacher_name, target_fontname, sel_size, sel_color, sel_shape, sub_data)
                             st.write("Injecting Data Streams...")
+                            progress_bar.progress(90, text="Finalizing PDF Document...")
+                            
+                            import base64
+                            
                             st.write("Finalizing PDF Document...")
+                            progress_bar.progress(100, text="Completed!")
                             status.update(label="Report Card Generated Successfully!", state="complete", expanded=False)
                             
                             file_name = f"Report_Card_{selected_student_data.get('roll_number')}_{selected_student_data.get('name').replace(' ', '_')}.pdf"
@@ -140,6 +171,12 @@ def render_teacher_results(teacher_email):
                                 key=f"dl_btn_{selected_student_data.get('id')}"
                             )
                             st.balloons()
+                            
+                            # Render Final PDF in Browser
+                            st.subheader("Final Generated PDF Preview")
+                            base64_pdf = base64.b64encode(pdf_buffer.getvalue()).decode('utf-8')
+                            pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800" type="application/pdf"></iframe>'
+                            st.markdown(pdf_display, unsafe_allow_html=True)
                             
                         except Exception as e:
                             status.update(label="Failed to generate report card.", state="error")
@@ -183,6 +220,8 @@ def render_teacher_results(teacher_email):
                     with st.status("Generating Bulk Report Cards...", expanded=True) as status:
                         try:
                             st.write(f"Processing {len(students)} students...")
+                            st.write("Fetching Academic Data from Google Sheets...")
+                            sub_data = fetch_class_academic_data(selected_class_id)
                             # we need teacher name
                             t_success, users_list = get_all_users()
                             bulk_teacher_name = teacher_email
@@ -191,14 +230,15 @@ def render_teacher_results(teacher_email):
                                     if u['email'] == teacher_email:
                                         bulk_teacher_name = u.get('name') if u.get('name') else u.get('email', bulk_teacher_name)
                                         break
-                                        
                             is_zip = "ZIP Archive" in export_format
                             if is_zip:
-                                file_buffer = generate_class_bulk_report_zip(students, selected_class_data, bulk_teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b)
+                                progress_bar = status.progress(0, text="Starting ZIP generation...")
+                                file_buffer = generate_class_bulk_report_zip(students, selected_class_data, bulk_teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b, progress_bar=progress_bar, status_text=status, subject_data=sub_data)
                                 file_name = f"Bulk_Reports_Class_{selected_class_data.get('class_name')}_{selected_class_data.get('section')}.zip"
                                 mime_type = "application/zip"
                             else:
-                                file_buffer = generate_class_bulk_report_merged(students, selected_class_data, bulk_teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b)
+                                progress_bar = status.progress(0, text="Starting Merged PDF generation...")
+                                file_buffer = generate_class_bulk_report_merged(students, selected_class_data, bulk_teacher_name, target_fontname_b, sel_size_b, sel_color_b, sel_shape_b, progress_bar=progress_bar, status_text=status, subject_data=sub_data)
                                 file_name = f"Bulk_Reports_Class_{selected_class_data.get('class_name')}_{selected_class_data.get('section')}.pdf"
                                 mime_type = "application/pdf"
                                 

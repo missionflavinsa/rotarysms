@@ -359,7 +359,7 @@ def bulk_import_students(class_id, df):
                     dob = str(dob_raw).strip()
             
             # Build nested structures using prefixes
-            ins_dict, phy_dict, glm_dict = {}, {}, {}
+            ins_data, phy_data = {}, {}
             emo_dict = {'t1': {}, 't2': {}}
             hab_dict = {'t1': {}, 't2': {}}
             
@@ -370,7 +370,7 @@ def bulk_import_students(class_id, df):
                 val = get_val(col_header)
                 
                 if internal_key.startswith('ins_'):
-                    ins_dict[internal_key.replace('ins_', '')] = val
+                    ins_data[internal_key.replace('ins_', '')] = val
                 elif internal_key.startswith('phy_'):
                     phy_data[internal_key.replace('phy_', '')] = val
             
@@ -464,7 +464,8 @@ def add_subject(class_id, subject_name):
         new_ref.set({
             "class_id": class_id,
             "name": subject_name,
-            "sheet_url": "", # Default empty
+            "sheet_url_t1": "", # Term 1
+            "sheet_url_t2": "", # Term 2
             "created_at": firestore.SERVER_TIMESTAMP
         })
         return True, "Subject added successfully"
@@ -491,13 +492,14 @@ def get_subjects(class_id):
     except Exception as e:
         return False, str(e)
 
-def update_subject(subject_id, name=None, sheet_url=None):
+def update_subject(subject_id, name=None, sheet_url_t1=None, sheet_url_t2=None):
     try:
         db = firestore.client()
         ref = db.collection('subjects').document(subject_id)
         data = {}
         if name is not None: data['name'] = name
-        if sheet_url is not None: data['sheet_url'] = sheet_url
+        if sheet_url_t1 is not None: data['sheet_url_t1'] = sheet_url_t1
+        if sheet_url_t2 is not None: data['sheet_url_t2'] = sheet_url_t2
         
         if data:
             ref.update(data)
