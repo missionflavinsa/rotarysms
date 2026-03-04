@@ -25,8 +25,9 @@ def render_teachers():
                     st.warning("Password must be at least 6 characters.")
                 else:
                     with st.spinner("Creating user..."):
-                        photo_b64 = base64.b64encode(new_photo.getvalue()).decode() if new_photo else ""
-                        sig_b64 = base64.b64encode(new_signature.getvalue()).decode() if new_signature else ""
+                        from src.utils.image_utils import process_uploaded_image
+                        photo_b64 = process_uploaded_image(new_photo) if new_photo else ""
+                        sig_b64 = process_uploaded_image(new_signature) if new_signature else ""
                         success, result = create_user(new_email, new_password, name=new_name, profile_photo=photo_b64, signature=sig_b64)
                     if success:
                         st.success(f"Successfully created account for {new_name} ({new_email})")
@@ -101,7 +102,9 @@ def render_teachers():
                                 try:
                                     resp = requests.get(photo_url, timeout=5)
                                     if resp.status_code == 200:
-                                        photo_b64 = base64.b64encode(resp.content).decode()
+                                        from src.utils.image_utils import process_uploaded_image
+                                        import io
+                                        photo_b64 = process_uploaded_image(io.BytesIO(resp.content))
                                 except Exception as e:
                                     st.warning(f"Row {index + 2}: Failed to fetch Profile Photo: {e}")
                                     
@@ -110,7 +113,9 @@ def render_teachers():
                                 try:
                                     resp = requests.get(sig_url, timeout=5)
                                     if resp.status_code == 200:
-                                        sig_b64 = base64.b64encode(resp.content).decode()
+                                        from src.utils.image_utils import process_uploaded_image
+                                        import io
+                                        sig_b64 = process_uploaded_image(io.BytesIO(resp.content))
                                 except Exception as e:
                                     st.warning(f"Row {index + 2}: Failed to fetch Signature Photo: {e}")
                             
@@ -181,9 +186,11 @@ def render_teachers():
                                     photo_b64 = selected_user.get('profile_photo', '')
                                     sig_b64 = selected_user.get('signature', '')
                                     if up_photo:
-                                        photo_b64 = base64.b64encode(up_photo.getvalue()).decode()
+                                        from src.utils.image_utils import process_uploaded_image
+                                        photo_b64 = process_uploaded_image(up_photo)
                                     if up_signature:
-                                        sig_b64 = base64.b64encode(up_signature.getvalue()).decode()
+                                        from src.utils.image_utils import process_uploaded_image
+                                        sig_b64 = process_uploaded_image(up_signature)
                                         
                                     up_success, up_result = update_user(
                                         selected_uid, 

@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 import io
 import requests
-from src.database.firebase_init import get_classes_for_teacher, get_students_by_class, update_student, delete_student, add_subject, get_subjects, update_subject, delete_subject, log_activity, bulk_import_students
+from src.database.firebase_init import get_classes_for_teacher, get_students_by_class, update_student, delete_student, add_subject, get_subjects, update_subject, delete_subject, log_activity, bulk_import_students, update_student_attendance, bulk_import_attendance
 
 def render_teacher_classes(teacher_email):
     st.header("🏫 My Assigned Classes")
@@ -24,7 +24,7 @@ def render_teacher_classes(teacher_email):
                 with class_tabs[idx]:
                     st.write(f"Management Panel for **Class {cls.get('class_name')}-{cls.get('section')}**")
                     
-                    inner_tab1, inner_tab2 = st.tabs(["👥 Student Roster", "📚 Subjects & Results"])
+                    inner_tab1, inner_tab2, inner_tab3 = st.tabs(["👥 Student Roster", "📚 Subjects & Results", "📅 Attendance"])
                     
                     with inner_tab1:
                         st.subheader("Students List")
@@ -99,10 +99,15 @@ def render_teacher_classes(teacher_email):
                                                                 if "drive.google.com" in current_photo:
                                                                     try:
                                                                         resp = requests.get(current_photo, timeout=5)
-                                                                        st.image(resp.content, width=100, caption="Current Photo")
+                                                                        from io import BytesIO
+                                                                        from PIL import Image, ImageOps
+                                                                        img = Image.open(BytesIO(resp.content))
+                                                                        img = ImageOps.exif_transpose(img)
+                                                                        buf = BytesIO()
+                                                                        img.save(buf, format=img.format or "JPEG")
+                                                                        st.image(buf.getvalue(), width=100, caption="Current Photo")
                                                                     except Exception:
-                                                                        st.markdown(f'<img src="{current_photo}" width="100" style="border-radius: 5px;">', unsafe_allow_html=True)
-                                                                        st.caption("Current Photo")
+                                                                        st.caption("Current Photo Error")
                                                                 else:
                                                                     st.image(current_photo, width=100, caption="Current Photo")
                                                             else:
@@ -235,7 +240,8 @@ def render_teacher_classes(teacher_email):
                                                         with st.spinner("Updating student profile..."):
                                                             photo_val = current_photo
                                                             if u_photo:
-                                                                photo_val = base64.b64encode(u_photo.getvalue()).decode()
+                                                                from src.utils.image_utils import process_uploaded_image
+                                                                photo_val = process_uploaded_image(u_photo)
                                                             
                                                             p_ins = {
                                                                 "grow_up": u_f2_grow_up, "age": u_f2_age, "food": u_f2_food, "game": u_f2_game,
@@ -253,7 +259,8 @@ def render_teacher_classes(teacher_email):
                                                             for f_up, c_up, existing_photo in u_f3_gallery:
                                                                 final_photo = existing_photo
                                                                 if f_up:
-                                                                    final_photo = "base64," + base64.b64encode(f_up.getvalue()).decode()
+                                                                    from src.utils.image_utils import process_uploaded_image
+                                                                    final_photo = "base64," + process_uploaded_image(f_up)
                                                                 if final_photo or c_up:
                                                                     p_gl.append({"photo": final_photo, "caption": c_up})
                                                                     
@@ -262,24 +269,25 @@ def render_teacher_classes(teacher_email):
                                                                 "desc": u_fam_c
                                                             }
                                                             if u_fam_f:
-                                                                p_fam["photo"] = "base64," + base64.b64encode(u_fam_f.getvalue()).decode()
+                                                                from src.utils.image_utils import process_uploaded_image
+                                                                p_fam["photo"] = "base64," + process_uploaded_image(u_fam_f)
 
-                                                            p_emo = {
-                                                                "t1": {"talk": u_f5_t1_1, "calm": u_f5_t1_2, "understand": u_f5_t1_3, "better": u_f5_t1_4, "feel": emo_t1.get('feel', [])},
-                                                                "t2": {"talk": u_f5_t2_1, "calm": u_f5_t2_2, "understand": u_f5_t2_3, "better": u_f5_t2_4, "feel": emo_t2.get('feel', [])}
-                                                            }
-                                                            p_hab = {
-                                                                "t1": {"flex": u_f6_t1_1, "ask": u_f6_t1_2, "articulate": u_f6_t1_3, "mindset": u_f6_t1_4, "reflect": u_f6_t1_5, "norms": u_f6_t1_6, "control": u_f6_t1_7},
-                                                                "t2": {"flex": u_f6_t2_1, "ask": u_f6_t2_2, "articulate": u_f6_t2_3, "mindset": u_f6_t2_4, "reflect": u_f6_t2_5, "norms": u_f6_t2_6, "control": u_f6_t2_7}
-                                                            }
-                                                            
-                                                            up_success, up_res = update_student(
-                                                                selected_student_id, roll_number=u_roll, name=u_name, 
-                                                                apaar_id=u_apaar, reg_number=u_reg, dob=str(u_dob) if u_dob else "", 
-                                                                profile_photo=photo_val, email=u_email,
-                                                                mother_name=u_mother, father_name=u_father,
-                                                                insights=p_ins, physical=p_phy, glims=p_gl, emotional=p_emo, habits=p_hab, family=p_fam
-                                                            )
+                                                        p_emo = {
+                                                            "t1": {"talk": u_f5_t1_1, "calm": u_f5_t1_2, "understand": u_f5_t1_3, "better": u_f5_t1_4, "feel": emo_t1.get('feel', [])},
+                                                            "t2": {"talk": u_f5_t2_1, "calm": u_f5_t2_2, "understand": u_f5_t2_3, "better": u_f5_t2_4, "feel": emo_t2.get('feel', [])}
+                                                        }
+                                                        p_hab = {
+                                                            "t1": {"flex": u_f6_t1_1, "ask": u_f6_t1_2, "articulate": u_f6_t1_3, "mindset": u_f6_t1_4, "reflect": u_f6_t1_5, "norms": u_f6_t1_6, "control": u_f6_t1_7},
+                                                            "t2": {"flex": u_f6_t2_1, "ask": u_f6_t2_2, "articulate": u_f6_t2_3, "mindset": u_f6_t2_4, "reflect": u_f6_t2_5, "norms": u_f6_t2_6, "control": u_f6_t2_7}
+                                                        }
+                                                        
+                                                        up_success, up_res = update_student(
+                                                            selected_student_id, roll_number=u_roll, name=u_name, 
+                                                            apaar_id=u_apaar, reg_number=u_reg, dob=str(u_dob) if u_dob else "", 
+                                                            profile_photo=photo_val, email=u_email,
+                                                            mother_name=u_mother, father_name=u_father,
+                                                            insights=p_ins, physical=p_phy, glims=p_gl, emotional=p_emo, habits=p_hab, family=p_fam
+                                                        )
                                                         if up_success:
                                                             log_activity(teacher_email, "Updated Student", f"{cls.get('class_name')}-{cls.get('section')}", f"Roll: {u_roll}, Name: {u_name}")
                                                             st.success("Successfully updated student.")
@@ -321,6 +329,19 @@ def render_teacher_classes(teacher_email):
                                     dummy_row[1] = "John Doe" # Name
                                     sample_csv += ",".join(dummy_row) + "\n"
                                     
+                                    with st.expander("ℹ️ How to format F3: Glims Gallery JSON"):
+                                        st.markdown("""
+                                        If you want to import Glims Gallery photos in bulk, the `F3: Glims Gallery JSON` column must contain a valid JSON array of objects.
+                                        
+                                        **Example Format:**
+                                        ```json
+                                        [
+                                            {"photo": "https://drive.google.com/...", "caption": "Playing Sports"},
+                                            {"photo": "https://drive.google.com/...", "caption": "Reading a Book"}
+                                        ]
+                                        ```
+                                        """)
+                                    
                                     st.download_button(
                                         label="📥 Download Sample Bulk Template (CSV)",
                                         data=sample_csv,
@@ -352,6 +373,22 @@ def render_teacher_classes(teacher_email):
                                                     st.error(imp_result)
                                         except Exception as e:
                                             st.error(f"Error reading file: {e}")
+
+                                    st.write("---")
+                                    st.subheader("⚠️ Danger Zone")
+                                    st.warning("Deleting all students will permanently remove their profiles, marks, and insights from this class.")
+                                    delete_confirm = st.checkbox("I understand the consequences, unlock delete button", key=f"del_conf_{cls['id']}")
+                                    if delete_confirm:
+                                        if st.button(f"🗑️ Delete ALL Students in {cls.get('class_name')} {cls.get('section')}", type="primary", key=f"del_all_{cls['id']}"):
+                                            with st.spinner("Deleting all students..."):
+                                                from src.database.firebase_init import delete_all_students_in_class
+                                                del_success, del_res = delete_all_students_in_class(cls['id'])
+                                            if del_success:
+                                                log_activity(teacher_email, "Deleted All Students", f"{cls.get('class_name')}-{cls.get('section')}")
+                                                st.success(del_res)
+                                                st.rerun()
+                                            else:
+                                                st.error(f"Failed to delete students: {del_res}")
                         else:
                             st.error(f"Failed to load students: {students}")
                             
@@ -473,5 +510,111 @@ def render_teacher_classes(teacher_email):
                                                     st.info(f"Please save a Google Sheet URL for {t_name} above to fetch data.")
                         else:
                             st.error("Failed to load subjects.")
+                            
+                    with inner_tab3:
+                        st.subheader("📅 Manage Class Attendance (Month-wise)")
+                        st.write("Track monthly attendance for individual students or upload bulk data.")
+                        
+                        months_list = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"]
+                        
+                        if not s_success or not students:
+                            st.warning("No students found in this class. Please add students first.")
+                        else:
+                            # 1. Manual Entry Form
+                            with st.expander("✍️ Manual Attendance Entry", expanded=True):
+                                with st.form(f"t_manual_attendance_form_{cls['id']}"):
+                                    col_m, col_s = st.columns(2)
+                                    with col_m:
+                                        sel_month = st.selectbox("Select Month", options=months_list)
+                                    with col_s:
+                                        student_opts = {f"{s.get('roll_number', 'N/A')} - {s.get('name', 'Unknown')}": s['id'] for s in students}
+                                        sel_student_label = st.selectbox("Select Student", options=list(student_opts.keys()))
+                                        sel_student_id = student_opts[sel_student_label]
+                                        
+                                    col_w, col_a = st.columns(2)
+                                    with col_w:
+                                        work_days = st.number_input("No. of Working Days", min_value=0, max_value=31, value=20)
+                                    with col_a:
+                                        att_days = st.number_input("No. of Days Attended", min_value=0, max_value=31, value=20)
+                                        
+                                    if st.form_submit_button("Save Attendance", type="primary"):
+                                        if att_days > work_days:
+                                            st.error("Attended days cannot exceed working days.")
+                                        else:
+                                            with st.spinner("Saving..."):
+                                                a_succ, a_res = update_student_attendance(sel_student_id, sel_month, work_days, att_days)
+                                            if a_succ:
+                                                st.success("Attendance saved successfully!")
+                                            else:
+                                                st.error(f"Failed to save: {a_res}")
+
+                            # 2. Bulk Upload Form
+                            st.write("---")
+                            st.write("**📁 Bulk Excel Attendance Upload**")
+                            st.info("Upload an Excel file where each sheet represents a month (e.g., April, May).")
+                            
+                            # Generate Template
+                            sample_buffer = io.BytesIO()
+                            with pd.ExcelWriter(sample_buffer, engine='openpyxl') as writer:
+                                df_template = pd.DataFrame([{
+                                    'Roll Number': s.get('roll_number', ''),
+                                    'Name of the Learner': s.get('name', ''),
+                                    'No. of working days': 20,
+                                    'No. of days attended': 20,
+                                } for s in students])
+                                for m in months_list:
+                                    df_template.to_excel(writer, sheet_name=m, index=False)
+                            
+                            st.download_button(
+                                label="📥 Download Class Attendance Template",
+                                data=sample_buffer.getvalue(),
+                                file_name=f"Attendance_Template_{cls.get('class_name')}_{cls.get('section')}.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                key=f"t_att_dl_{cls['id']}"
+                            )
+                            
+                            att_file = st.file_uploader("Upload filled Attendance Excel", type=["xlsx"], key=f"t_att_up_{cls['id']}")
+                            if att_file:
+                                try:
+                                    wb_dict = pd.read_excel(att_file, sheet_name=None)
+                                    st.write(f"Detected {len(wb_dict)} month sheets: {', '.join(list(wb_dict.keys()))}")
+                                    
+                                    if st.button("🚀 Process Bulk Attendance", type="primary", key=f"t_att_proc_{cls['id']}"):
+                                        with st.spinner("Processing workbook across all students..."):
+                                            b_succ, b_res = bulk_import_attendance(cls['id'], wb_dict)
+                                        if b_succ:
+                                            st.success(b_res)
+                                            st.rerun()
+                                        else:
+                                            st.error(b_res)
+                                except Exception as e:
+                                    st.error(f"Failed to read Excel file: {e}")
+                                    
+                            # 3. View Attendance
+                            st.write("---")
+                            with st.expander("👀 View Student Attendance", expanded=False):
+                                view_student_opts = {f"{s.get('roll_number', 'N/A')} - {s.get('name', 'Unknown')}": s for s in students}
+                                v_sel_student_label = st.selectbox("Select Student to View", options=list(view_student_opts.keys()), key=f"t_view_att_{cls['id']}")
+                                v_student_data = view_student_opts[v_sel_student_label]
+                                
+                                attendance_data = v_student_data.get('attendance', {})
+                                if not attendance_data:
+                                    st.info("No attendance records found for this student.")
+                                else:
+                                    att_records = []
+                                    for m in months_list:
+                                        if m in attendance_data:
+                                            att_records.append({
+                                                "Month": m,
+                                                "Working Days": attendance_data[m].get("working_days", 0),
+                                                "Attended Days": attendance_data[m].get("attended_days", 0),
+                                                "Percentage (%)": attendance_data[m].get("percentage", 0)
+                                            })
+                                    if not att_records:
+                                        st.info("No attendance records found for this student.")
+                                    else:
+                                        df_att = pd.DataFrame(att_records)
+                                        st.dataframe(df_att, hide_index=True, use_container_width=True)
+                                        
     else:
         st.error(f"Failed to load your assigned classes: {classes}")

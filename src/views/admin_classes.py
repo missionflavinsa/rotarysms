@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-from src.database.firebase_init import create_class, get_all_classes, update_class, delete_class, get_all_users, add_subject, get_subjects, update_subject, delete_subject, log_activity
+import io
+from src.database.firebase_init import create_class, get_all_classes, update_class, delete_class, get_all_users, add_subject, get_subjects, update_subject, delete_subject, log_activity, get_students_by_class, update_student_attendance, bulk_import_attendance
 
 def render_classes():
     st.header("🏫 Class Management")
@@ -14,6 +15,7 @@ def render_classes():
             class_name = st.text_input("Class Name (e.g., 10, 11, 12)")
             section = st.text_input("Section (e.g., A, B, C)")
             selected_teacher = st.selectbox("Assign Class Teacher", options=teacher_emails) if teacher_emails else None
+            class_photo_up = st.file_uploader("Upload Class Photo (Optional)", type=["png", "jpg", "jpeg"], key="c_photo")
             if not teacher_emails:
                 st.warning("No teachers available. Please create a teacher first.")
                 
@@ -23,7 +25,11 @@ def render_classes():
                     st.warning("Please provide all fields.")
                 else:
                     with st.spinner("Creating class..."):
-                        c_success, c_result = create_class(class_name, section, selected_teacher)
+                        photo_b64 = ""
+                        if class_photo_up:
+                            from src.utils.image_utils import process_uploaded_image
+                            photo_b64 = "base64," + process_uploaded_image(class_photo_up)
+                        c_success, c_result = create_class(class_name, section, selected_teacher, class_photo=photo_b64)
                     if c_success:
                         st.success("Successfully created Class!")
                         st.rerun()
@@ -48,7 +54,7 @@ def render_classes():
                 selected_class_id = class_options[selected_class_label]
                 selected_class_data = class_map[selected_class_id]
                 
-                admin_c_t1, admin_c_t2 = st.tabs(["⚙️ Class Settings", "📚 Subjects & Results"])
+                admin_c_t1, admin_c_t2, admin_c_t3 = st.tabs(["⚙️ Class Settings", "📚 Subjects & Results", "📅 Attendance"])
                 
                 with admin_c_t1:
                     col3, col4 = st.columns(2)
@@ -58,13 +64,27 @@ def render_classes():
                             u_section = st.text_input("Section", value=selected_class_data['section'])
                             u_teacher = st.selectbox("Assign Teacher", options=teacher_emails, index=teacher_emails.index(selected_class_data['teacher_email']) if selected_class_data['teacher_email'] in teacher_emails else 0)
                             
+                            c_photo = selected_class_data.get('class_photo', '')
+                            u_class_photo_up = st.file_uploader("Update Class Photo", type=["png", "jpg", "jpeg"], key="u_c_photo")
+                            if c_photo:
+                                st.caption("Current Class Photo:")
+                                if c_photo.startswith('base64,'):
+                                    import base64
+                                    st.image(base64.b64decode(c_photo.split("base64,")[1]), width=150)
+                                else:
+                                    st.image(c_photo, width=150)
+                            
                             update_c_btn = st.form_submit_button("Update Class")
                             if update_c_btn:
                                 if not u_class_name or not u_section or not u_teacher:
                                     st.warning("All fields are required.")
                                 else:
                                     with st.spinner("Updating class..."):
-                                        up_c_success, up_c_res = update_class(selected_class_id, class_name=u_class_name, section=u_section, teacher_email=u_teacher)
+                                        u_photo_val = None
+                                        if u_class_photo_up:
+                                            from src.utils.image_utils import process_uploaded_image
+                                            u_photo_val = "base64," + process_uploaded_image(u_class_photo_up)
+                                        up_c_success, up_c_res = update_class(selected_class_id, class_name=u_class_name, section=u_section, teacher_email=u_teacher, class_photo=u_photo_val)
                                     if up_c_success:
                                         st.success("Class updated.")
                                         st.rerun()
@@ -202,5 +222,112 @@ def render_classes():
                                                 st.info(f"Please save a Google Sheet URL for {t_name} above to fetch data.")
                     else:
                         st.error("Failed to load subjects.")
+                        
+                with admin_c_t3:
+                    st.subheader("📅 Manage Class Attendance (Month-wise)")
+                    st.write("Track monthly attendance for individual students or upload bulk data.")
+                    
+                    months_list = ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"]
+                    s_success, students = get_students_by_class(selected_class_id)
+                    
+                    if not s_success or not students:
+                        st.warning("No students found in this class. Please add students first.")
+                    else:
+                        # 1. Manual Entry Form
+                        with st.expander("✍️ Manual Attendance Entry", expanded=True):
+                            with st.form(f"manual_attendance_form_{selected_class_id}"):
+                                col_m, col_s = st.columns(2)
+                                with col_m:
+                                    sel_month = st.selectbox("Select Month", options=months_list)
+                                with col_s:
+                                    student_opts = {f"{s.get('roll_number', 'N/A')} - {s.get('name', 'Unknown')}": s['id'] for s in students}
+                                    sel_student_label = st.selectbox("Select Student", options=list(student_opts.keys()))
+                                    sel_student_id = student_opts[sel_student_label]
+                                    
+                                col_w, col_a = st.columns(2)
+                                with col_w:
+                                    work_days = st.number_input("No. of Working Days", min_value=0, max_value=31, value=20)
+                                with col_a:
+                                    att_days = st.number_input("No. of Days Attended", min_value=0, max_value=31, value=20)
+                                    
+                                if st.form_submit_button("Save Attendance", type="primary"):
+                                    if att_days > work_days:
+                                        st.error("Attended days cannot exceed working days.")
+                                    else:
+                                        with st.spinner("Saving..."):
+                                            a_succ, a_res = update_student_attendance(sel_student_id, sel_month, work_days, att_days)
+                                        if a_succ:
+                                            st.success("Attendance saved successfully!")
+                                        else:
+                                            st.error(f"Failed to save: {a_res}")
+
+                        # 2. Bulk Upload Form
+                        st.write("---")
+                        st.write("**📁 Bulk Excel Attendance Upload**")
+                        st.info("Upload an Excel file where each sheet represents a month (e.g., April, May).")
+                        
+                        # Generate Template
+                        sample_buffer = io.BytesIO()
+                        with pd.ExcelWriter(sample_buffer, engine='openpyxl') as writer:
+                            df_template = pd.DataFrame([{
+                                'Roll Number': s.get('roll_number', ''),
+                                'Name of the Learner': s.get('name', ''),
+                                'No. of working days': 20,
+                                'No. of days attended': 20,
+                            } for s in students])
+                            for m in months_list:
+                                df_template.to_excel(writer, sheet_name=m, index=False)
+                        
+                        st.download_button(
+                            label="📥 Download Class Attendance Template",
+                            data=sample_buffer.getvalue(),
+                            file_name=f"Attendance_Template_{selected_class_data['class_name']}_{selected_class_data['section']}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                        )
+                        
+                        att_file = st.file_uploader("Upload filled Attendance Excel", type=["xlsx"], key=f"att_up_{selected_class_id}")
+                        if att_file:
+                            try:
+                                # Show preview of sheets
+                                wb_dict = pd.read_excel(att_file, sheet_name=None)
+                                st.write(f"Detected {len(wb_dict)} month sheets: {', '.join(list(wb_dict.keys()))}")
+                                
+                                if st.button("🚀 Process Bulk Attendance", type="primary"):
+                                    with st.spinner("Processing workbook across all students..."):
+                                        b_succ, b_res = bulk_import_attendance(selected_class_id, wb_dict)
+                                    if b_succ:
+                                        st.success(b_res)
+                                        st.rerun()
+                                    else:
+                                        st.error(b_res)
+                            except Exception as e:
+                                st.error(f"Failed to read Excel file: {e}")
+                                
+                        # 3. View Attendance
+                        st.write("---")
+                        with st.expander("👀 View Student Attendance", expanded=False):
+                            view_student_opts = {f"{s.get('roll_number', 'N/A')} - {s.get('name', 'Unknown')}": s for s in students}
+                            v_sel_student_label = st.selectbox("Select Student to View", options=list(view_student_opts.keys()), key=f"view_att_{selected_class_id}")
+                            v_student_data = view_student_opts[v_sel_student_label]
+                            
+                            attendance_data = v_student_data.get('attendance', {})
+                            if not attendance_data:
+                                st.info("No attendance records found for this student.")
+                            else:
+                                att_records = []
+                                for m in months_list:
+                                    if m in attendance_data:
+                                        att_records.append({
+                                            "Month": m,
+                                            "Working Days": attendance_data[m].get("working_days", 0),
+                                            "Attended Days": attendance_data[m].get("attended_days", 0),
+                                            "Percentage (%)": attendance_data[m].get("percentage", 0)
+                                        })
+                                if not att_records:
+                                    st.info("No attendance records found for this student.")
+                                else:
+                                    df_att = pd.DataFrame(att_records)
+                                    st.dataframe(df_att, hide_index=True, use_container_width=True)
+                                
     else:
         st.error(f"Failed to load classes: {classes_list}")

@@ -28,6 +28,7 @@ def render_students():
         class_map = {c['id']: c for c in classes_list}
         selected_class_label = st.selectbox("Select Target Class:", options=list(class_options.keys()))
         selected_class_id = class_options[selected_class_label]
+        selected_class_data = class_map[selected_class_id]
         
         st.markdown("---")
         st_tab1, st_tab2, st_tab3 = st.tabs(["📋 View & Edit", "➕ Add Individual", "📁 Bulk Import"])
@@ -102,10 +103,15 @@ def render_students():
                                                 if "drive.google.com" in current_photo:
                                                     try:
                                                         resp = requests.get(current_photo, timeout=5)
-                                                        st.image(resp.content, width=100, caption="Current Photo")
+                                                        from io import BytesIO
+                                                        from PIL import Image, ImageOps
+                                                        img = Image.open(BytesIO(resp.content))
+                                                        img = ImageOps.exif_transpose(img)
+                                                        buf = BytesIO()
+                                                        img.save(buf, format=img.format or "JPEG")
+                                                        st.image(buf.getvalue(), width=100, caption="Current Photo")
                                                     except Exception:
-                                                        st.markdown(f'<img src="{current_photo}" width="100" style="border-radius: 5px;">', unsafe_allow_html=True)
-                                                        st.caption("Current Photo")
+                                                        st.caption("Current Photo Error")
                                                 else:
                                                     st.image(current_photo, width=100, caption="Current Photo")
                                             else:
@@ -238,7 +244,8 @@ def render_students():
                                         with st.spinner("Updating student profile..."):
                                             photo_val = current_photo
                                             if u_photo:
-                                                photo_val = base64.b64encode(u_photo.getvalue()).decode()
+                                                from src.utils.image_utils import process_uploaded_image
+                                                photo_val = process_uploaded_image(u_photo)
                                             
                                             p_ins = {
                                                 "grow_up": u_f2_grow_up, "age": u_f2_age, "food": u_f2_food, "game": u_f2_game,
@@ -256,7 +263,8 @@ def render_students():
                                             for f_up, c_up, existing_photo in u_f3_gallery:
                                                 final_photo = existing_photo
                                                 if f_up:
-                                                    final_photo = "base64," + base64.b64encode(f_up.getvalue()).decode()
+                                                    from src.utils.image_utils import process_uploaded_image
+                                                    final_photo = "base64," + process_uploaded_image(f_up)
                                                 if final_photo or c_up:
                                                     p_gl.append({"photo": final_photo, "caption": c_up})
                                                     
@@ -265,7 +273,8 @@ def render_students():
                                                 "desc": u_fam_c
                                             }
                                             if u_fam_f:
-                                                p_fam["photo"] = "base64," + base64.b64encode(u_fam_f.getvalue()).decode()
+                                                from src.utils.image_utils import process_uploaded_image
+                                                p_fam["photo"] = "base64," + process_uploaded_image(u_fam_f)
 
                                             p_emo = {
                                                 "t1": {"talk": u_f5_t1_1, "calm": u_f5_t1_2, "understand": u_f5_t1_3, "better": u_f5_t1_4, "feel": emo_t1.get('feel', [])},
@@ -507,6 +516,19 @@ def render_students():
             st.info("The Excel file must contain these exact column headers: `Roll Number` and `Name of the Learner`")
             st.write("Optional columns: `APAAR ID/PEN`, `Registration/Admission Number`, `Date of Birth` (DD/MM/YYYY), `Email`, `Name of Mother`, `Name of Father`, `Profile Photo URL`")
             
+            with st.expander("ℹ️ How to format F3: Glims Gallery JSON"):
+                st.markdown("""
+                If you want to import Glims Gallery photos in bulk, the `F3: Glims Gallery JSON` column must contain a valid JSON array of objects.
+                
+                **Example Format:**
+                ```json
+                [
+                    {"photo": "https://drive.google.com/...", "caption": "Playing Sports"},
+                    {"photo": "https://drive.google.com/...", "caption": "Reading a Book"}
+                ]
+                ```
+                """)
+            
             from src.utils.excel_utils import EXCEL_COLUMN_MAP
             # Create sample CSV dynamically from the exact map
             headers = list(EXCEL_COLUMN_MAP.values())
@@ -545,3 +567,18 @@ def render_students():
                             st.error(imp_result)
                 except Exception as e:
                     st.error(f"Error reading file: {e}")
+
+            st.write("---")
+            st.subheader("⚠️ Danger Zone")
+            st.warning("Deleting all students will permanently remove their profiles, marks, and insights from this class.")
+            delete_confirm = st.checkbox("I understand the consequences, unlock delete button")
+            if delete_confirm:
+                if st.button(f"🗑️ Delete ALL Students in {selected_class_data.get('class_name')} {selected_class_data.get('section')}", type="primary"):
+                    with st.spinner("Deleting all students..."):
+                        from src.database.firebase_init import delete_all_students_in_class
+                        del_success, del_res = delete_all_students_in_class(selected_class_id)
+                    if del_success:
+                        st.success(del_res)
+                        st.rerun()
+                    else:
+                        st.error(f"Failed to delete students: {del_res}")

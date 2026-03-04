@@ -37,7 +37,8 @@ def render_teacher_settings(teacher_email):
                     with st.spinner("Updating profile..."):
                         photo_b64 = current_user.get('profile_photo', '')
                         if up_photo:
-                            photo_b64 = base64.b64encode(up_photo.getvalue()).decode()
+                            from src.utils.image_utils import process_uploaded_image
+                            photo_b64 = process_uploaded_image(up_photo)
                             
                         up_success, up_result = update_user(
                             current_user['uid'], 

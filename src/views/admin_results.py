@@ -10,37 +10,8 @@ import zipfile
 from PIL import Image, ImageDraw
 from src.database.firebase_init import get_all_classes, get_students_by_class, get_all_users
 
-@st.cache_data
-def get_available_fonts():
-    fonts = {
-        "Helvetica (Built-in)": "helv",
-        "Helvetica Bold (Built-in)": "helv-bo",
-        "Helvetica Italic (Built-in)": "helv-ob",
-        "Helvetica Bold Italic (Built-in)": "helv-bo",
-        "Times Roman (Built-in)": "times-roman",
-        "Times Bold (Built-in)": "times-bold",
-        "Times Italic (Built-in)": "times-italic",
-        "Courier (Built-in)": "courier",
-        "Courier Bold (Built-in)": "courier-bold",
-        "Courier Italic (Built-in)": "courier-oblique",
-        "Symbol (Built-in)": "symbol",
-        "ZapfDingbats (Built-in)": "zapfdingbats"
-    }
-    
-    # Load Custom Local TTFs/OTFs safely
-    os.makedirs("fonts", exist_ok=True)
-    for file_name in os.listdir("fonts"):
-        if file_name.lower().endswith((".ttf", ".otf")):
-            path = os.path.join("fonts", file_name)
-            name = file_name[:-4].replace("-", " ")
-            fonts[f"{name} (Custom)"] = path
-        
-    # Load system TTFs safely
-    for path in glob.glob("/usr/share/fonts/**/*.ttf", recursive=True):
-        name = os.path.basename(path).replace(".ttf", "").replace("-", " ")
-        fonts[f"{name} (System)"] = path
-        
-    return fonts
+from src.utils.font_utils import get_available_fonts
+
 
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip('#')
@@ -56,6 +27,8 @@ def process_profile_photo_rectangular(image_source, target_size=(201, 274)):
             img_data = base64.b64decode(image_source)
             
         img = Image.open(io.BytesIO(img_data)).convert("RGBA")
+        from PIL import ImageOps
+        img = ImageOps.exif_transpose(img)
         
         w, h = img.size
         target_ratio = target_size[0] / target_size[1]
@@ -88,6 +61,8 @@ def process_profile_photo_circular(image_source, size=(140, 140)):
             img_data = base64.b64decode(image_source)
             
         img = Image.open(io.BytesIO(img_data)).convert("RGBA")
+        from PIL import ImageOps
+        img = ImageOps.exif_transpose(img)
         
         # Center crop to square
         w, h = img.size
@@ -167,6 +142,8 @@ def process_profile_photo_original(image_source):
         img_data = base64.b64decode(image_source)
         
     img = Image.open(io.BytesIO(img_data)).convert("RGBA")
+    from PIL import ImageOps
+    img = ImageOps.exif_transpose(img)
     
     w, h = img.size
     target_ratio = target_size[0] / target_size[1]
@@ -336,16 +313,16 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
     # --- ACADEMIC GRADES INJECTION (Pages 4 to 9) ---
     if subject_data:
         SUBJECT_ZONES = {
-            "english": {"page": 3, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "hindi": {"page": 4, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 2000},
-            "marathi": {"page": 4, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "mathematics": {"page": 5, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "environmental studies": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "evs": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "art": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000},
-            "physical education": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 420},
-            "health and wellness": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
-            "health & wellness": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000},
+            "english": {"page": 3, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000, "aliases": ["eng"]},
+            "hindi": {"page": 4, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 2000, "aliases": ["hin"]},
+            "marathi": {"page": 4, "x_min": 595, "x_max": 2000, "y_min": 0, "y_max": 2000, "aliases": ["mar"]},
+            "mathematics": {"page": 5, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000, "aliases": ["math"]},
+            "environmental studies": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000, "aliases": ["evs", "environment"]},
+            "evs": {"page": 6, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000, "aliases": ["environmental"]},
+            "art": {"page": 7, "x_min": 0, "x_max": 2000, "y_min": 0, "y_max": 2000, "aliases": ["drawing", "craft"]},
+            "physical education": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 0, "y_max": 420, "aliases": ["pt", "physical", "sports"]},
+            "health and wellness": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000, "aliases": ["health"]},
+            "health & wellness": {"page": 8, "x_min": 0, "x_max": 595, "y_min": 420, "y_max": 2000, "aliases": ["health"]},
         }
 
         student_name_norm = str(student_data.get('name', '')).lower().strip().replace("  ", " ")
@@ -369,7 +346,8 @@ def generate_report_card(student_data, class_data, teacher_name, font_name_or_pa
             
             zone = None
             for z_key, z_val in SUBJECT_ZONES.items():
-                if z_key in s_key or s_key in z_key:
+                match_terms = [z_key] + z_val.get("aliases", [])
+                if any(t in s_key or s_key in t for t in match_terms):
                     zone = z_val
                     break
             

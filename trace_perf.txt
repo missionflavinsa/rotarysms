@@ -1,0 +1,2175 @@
+1772125997.075383: --- APP START ---
+1772125997.1627126: Importing login
+1772125999.8821936: Importing admin
+1772126000.0388978: Importing teacher
+1772126000.043755: Importing search
+1772126000.0449324: Importing db
+1772126000.0453444: Importing utils
+1772126000.046852: --- main() start ---
+1772126000.04725: > init_firebase
+1772126000.2726488: > inject_custom_css
+1772126000.2742548: > hidden styles
+1772126008.2104442: --- main() end ---
+1772126033.7981734: --- APP START ---
+1772126033.7996616: Importing login
+1772126033.8003805: Importing admin
+1772126033.8009963: Importing teacher
+1772126033.8012006: Importing search
+1772126033.8017728: Importing db
+1772126033.8021097: Importing utils
+1772126033.8035197: --- main() start ---
+1772126033.8040297: > init_firebase
+1772126033.8043017: > inject_custom_css
+1772126033.8067765: > hidden styles
+1772126033.9597116: --- APP START ---
+1772126033.961049: Importing login
+1772126033.9634657: Importing admin
+1772126033.9635909: Importing teacher
+1772126033.9636664: Importing search
+1772126033.96374: Importing db
+1772126033.96381: Importing utils
+1772126033.9639223: --- main() start ---
+1772126033.963993: > init_firebase
+1772126033.9641588: > inject_custom_css
+1772126033.9660842: > hidden styles
+1772126033.9940252: > render_universal_search
+1772126040.8175702: > user routing
+1772126040.8191593: > admin_page start
+1772126041.2980545: > admin_page end
+1772126041.3020124: --- main() end ---
+1772126046.547949: --- APP START ---
+1772126046.5508204: Importing login
+1772126046.5513444: Importing admin
+1772126046.5514936: Importing teacher
+1772126046.5516198: Importing search
+1772126046.5517375: Importing db
+1772126046.5518522: Importing utils
+1772126046.5520873: --- main() start ---
+1772126046.5522344: > init_firebase
+1772126046.5544684: > inject_custom_css
+1772126046.5577047: > hidden styles
+1772126046.5944064: > render_universal_search
+1772126046.6006932: > user routing
+1772126046.6023066: > admin_page start
+1772126046.6214504: > admin_page end
+1772126046.6260884: --- main() end ---
+1772126054.237251: --- APP START ---
+1772126054.2395415: Importing login
+1772126054.2480395: Importing admin
+1772126054.248558: Importing teacher
+1772126054.252133: Importing search
+1772126054.2525032: Importing db
+1772126054.2527533: Importing utils
+1772126054.2532148: --- main() start ---
+1772126054.2534835: > init_firebase
+1772126054.2539637: > inject_custom_css
+1772126054.2637048: > hidden styles
+1772126054.3482587: > render_universal_search
+1772126054.355299: > user routing
+1772126054.3563905: > admin_page start
+1772126054.360466: > admin_page end
+1772126054.3656907: --- main() end ---
+1772126062.6365688: --- APP START ---
+1772126062.6377635: Importing login
+1772126062.637904: Importing admin
+1772126062.6396878: Importing teacher
+1772126062.6412642: Importing search
+1772126062.6426735: Importing db
+1772126062.6441605: Importing utils
+1772126062.6456528: --- main() start ---
+1772126062.6457949: > init_firebase
+1772126062.6459746: > inject_custom_css
+1772126062.648258: > hidden styles
+1772126062.6755474: > render_universal_search
+1772126062.683246: > user routing
+1772126062.6845224: > admin_page start
+1772126062.7615442: > admin_page end
+1772126062.7647512: --- main() end ---
+1772126073.2987492: --- APP START ---
+1772126073.2994227: Importing login
+1772126073.29967: Importing admin
+1772126073.3009658: Importing teacher
+1772126073.3029003: Importing search
+1772126073.303907: Importing db
+1772126073.304878: Importing utils
+1772126073.305513: --- main() start ---
+1772126073.3065736: > init_firebase
+1772126073.3094354: > inject_custom_css
+1772126073.3151855: > hidden styles
+1772126073.348622: > render_universal_search
+1772126074.7832255: > user routing
+1772126074.7849596: > admin_page start
+1772126074.8346999: > admin_page end
+1772126074.8396842: --- main() end ---
+1772126080.7313828: --- APP START ---
+1772126080.7356076: Importing login
+1772126080.7358832: Importing admin
+1772126080.737487: Importing teacher
+1772126080.7380402: Importing search
+1772126080.738167: Importing db
+1772126080.7382786: Importing utils
+1772126080.7384803: --- main() start ---
+1772126080.7386165: > init_firebase
+1772126080.7388573: > inject_custom_css
+1772126080.7425237: > hidden styles
+1772126080.7707286: > render_universal_search
+1772126080.7765727: > user routing
+1772126080.778243: > admin_page start
+1772126080.8198762: > admin_page end
+1772126080.8239503: --- main() end ---
+1772126090.6920652: --- APP START ---
+1772126090.6976361: Importing login
+1772126090.700424: Importing admin
+1772126090.700675: Importing teacher
+1772126090.7008402: Importing search
+1772126090.7009776: Importing db
+1772126090.7011054: Importing utils
+1772126090.7013273: --- main() start ---
+1772126090.7014527: > init_firebase
+1772126090.7017148: > inject_custom_css
+1772126090.7059267: > hidden styles
+1772126090.7410488: > render_universal_search
+1772126090.7500942: > user routing
+1772126090.7515543: > admin_page start
+1772126099.638233: > admin_page end
+1772126099.6725948: --- main() end ---
+1772126132.2575965: --- APP START ---
+1772126132.2586946: Importing login
+1772126132.2593017: Importing admin
+1772126132.259655: Importing teacher
+1772126132.2605019: Importing search
+1772126132.2611384: Importing db
+1772126132.2614915: Importing utils
+1772126132.2616453: --- main() start ---
+1772126132.2617314: > init_firebase
+1772126132.2618873: > inject_custom_css
+1772126132.265111: > hidden styles
+1772126132.2954705: > render_universal_search
+1772126133.9532423: > user routing
+1772126133.9558136: > admin_page start
+1772126134.526003: > admin_page end
+1772126134.5352328: --- main() end ---
+1772126145.5730443: --- APP START ---
+1772126145.5758805: Importing login
+1772126145.5781374: Importing admin
+1772126145.5806038: Importing teacher
+1772126145.5810406: Importing search
+1772126145.5822587: Importing db
+1772126145.5829523: Importing utils
+1772126145.5839417: --- main() start ---
+1772126145.5850549: > init_firebase
+1772126145.5859416: > inject_custom_css
+1772126145.589606: > hidden styles
+1772126145.6086612: > render_universal_search
+1772126145.6162643: > user routing
+1772126145.6176696: > admin_page start
+1772126146.0630424: --- APP START ---
+1772126146.0646005: Importing login
+1772126146.0657938: Importing admin
+1772126146.0671964: Importing teacher
+1772126146.0680337: Importing search
+1772126146.0687475: Importing db
+1772126146.0689092: Importing utils
+1772126146.069176: --- main() start ---
+1772126146.0699015: > init_firebase
+1772126146.0702627: > inject_custom_css
+1772126146.07249: > hidden styles
+1772126146.0931945: > render_universal_search
+1772126146.1001139: > user routing
+1772126146.1019228: > admin_page start
+1772126146.5223253: > admin_page end
+1772126146.5249698: --- main() end ---
+1772126160.6112993: --- APP START ---
+1772126160.6201017: Importing login
+1772126160.6234753: Importing admin
+1772126160.6253757: Importing teacher
+1772126160.6275406: Importing search
+1772126160.629686: Importing db
+1772126160.6300414: Importing utils
+1772126160.6321025: --- main() start ---
+1772126160.6339877: > init_firebase
+1772126160.6345665: > inject_custom_css
+1772126160.6457088: > hidden styles
+1772126160.7176988: > render_universal_search
+1772126160.7260926: > user routing
+1772126160.7287252: > admin_page start
+1772126161.2113037: > admin_page end
+1772126161.2149465: --- main() end ---
+1772126496.5972497: --- APP START ---
+1772126496.8667967: Importing login
+1772126499.796878: Importing admin
+1772126499.7993834: Importing teacher
+1772126499.8004596: Importing search
+1772126499.8042412: Importing db
+1772126499.805277: Importing utils
+1772126499.806609: --- main() start ---
+1772126499.8066945: > init_firebase
+1772126500.1132128: > inject_custom_css
+1772126500.1164331: > hidden styles
+1772126517.7303698: --- main() end ---
+1772126523.9763753: --- APP START ---
+1772126523.977876: Importing login
+1772126523.9786608: Importing admin
+1772126523.9790952: Importing teacher
+1772126523.9796042: Importing search
+1772126523.97981: Importing db
+1772126523.9800973: Importing utils
+1772126523.981027: --- main() start ---
+1772126523.9815352: > init_firebase
+1772126523.9824023: > inject_custom_css
+1772126523.9851785: > hidden styles
+1772126526.660588: --- APP START ---
+1772126526.6611392: Importing login
+1772126526.6612158: Importing admin
+1772126526.6612663: Importing teacher
+1772126526.6613107: Importing search
+1772126526.661353: Importing db
+1772126526.6613948: Importing utils
+1772126526.6614704: --- main() start ---
+1772126526.6615129: > init_firebase
+1772126526.6616383: > inject_custom_css
+1772126526.663312: > hidden styles
+1772126526.6934185: > render_universal_search
+1772126564.08378: > user routing
+1772126564.0874825: > admin_page start
+1772126574.3614984: > admin_page end
+1772126574.3660808: --- main() end ---
+1772126580.0240865: --- APP START ---
+1772126580.0246825: Importing login
+1772126580.0248005: Importing admin
+1772126580.024882: Importing teacher
+1772126580.0249507: Importing search
+1772126580.0250156: Importing db
+1772126580.0254555: Importing utils
+1772126580.027729: --- main() start ---
+1772126580.0278952: > init_firebase
+1772126580.0288079: > inject_custom_css
+1772126580.0313478: > hidden styles
+1772126580.0609727: > render_universal_search
+1772126599.3690245: > user routing
+1772126599.3705251: > admin_page start
+1772126599.6899927: > admin_page end
+1772126599.6933327: --- main() end ---
+1772126607.5779412: --- APP START ---
+1772126607.5786788: Importing login
+1772126607.5802593: Importing admin
+1772126607.580425: Importing teacher
+1772126607.580529: Importing search
+1772126607.5806026: Importing db
+1772126607.580675: Importing utils
+1772126607.5808156: --- main() start ---
+1772126607.5808976: > init_firebase
+1772126607.581096: > inject_custom_css
+1772126607.5851135: > hidden styles
+1772126607.6245084: > render_universal_search
+1772126607.63354: > user routing
+1772126607.6350358: > admin_page start
+1772126608.4987504: > admin_page end
+1772126608.502069: --- main() end ---
+1772126612.892962: --- APP START ---
+1772126612.8951333: Importing login
+1772126612.895462: Importing admin
+1772126612.89572: Importing teacher
+1772126612.8965952: Importing search
+1772126612.8971298: Importing db
+1772126612.897845: Importing utils
+1772126612.8988745: --- main() start ---
+1772126612.898984: > init_firebase
+1772126612.8993034: > inject_custom_css
+1772126612.9013054: > hidden styles
+1772126612.931226: > render_universal_search
+1772126612.9371023: > user routing
+1772126612.9381242: > admin_page start
+1772126612.9986238: > admin_page end
+1772126613.0025632: --- main() end ---
+1772126618.1896443: --- APP START ---
+1772126618.1925957: Importing login
+1772126618.1927838: Importing admin
+1772126618.1928737: Importing teacher
+1772126618.192949: Importing search
+1772126618.19302: Importing db
+1772126618.1930926: Importing utils
+1772126618.193227: --- main() start ---
+1772126618.1933: > init_firebase
+1772126618.193486: > inject_custom_css
+1772126618.1960921: > hidden styles
+1772126618.233655: > render_universal_search
+1772126618.2415566: > user routing
+1772126618.242822: > admin_page start
+1772126618.3908048: > admin_page end
+1772126618.3946564: --- main() end ---
+1772126623.499751: --- APP START ---
+1772126623.5059462: Importing login
+1772126623.506735: Importing admin
+1772126623.5073144: Importing teacher
+1772126623.5096679: Importing search
+1772126623.5108676: Importing db
+1772126623.5128264: Importing utils
+1772126623.5157816: --- main() start ---
+1772126623.5160322: > init_firebase
+1772126623.5162833: > inject_custom_css
+1772126623.5189433: > hidden styles
+1772126623.54866: > render_universal_search
+1772126642.713735: > user routing
+1772126642.7148402: > admin_page start
+1772126651.2174501: > admin_page end
+1772126651.2243612: --- main() end ---
+1772126774.3618603: --- APP START ---
+1772126774.3637316: Importing login
+1772126774.3639414: Importing admin
+1772126774.3641536: Importing teacher
+1772126774.3642466: Importing search
+1772126774.3651614: Importing db
+1772126774.3654683: Importing utils
+1772126774.3660226: --- main() start ---
+1772126774.3665895: > init_firebase
+1772126774.3669426: > inject_custom_css
+1772126774.3696628: > hidden styles
+1772126774.3908582: > render_universal_search
+1772126795.718377: > user routing
+1772126795.7195601: > admin_page start
+1772126805.0893965: --- APP START ---
+1772126805.090371: Importing login
+1772126805.0915074: Importing admin
+1772126805.0930102: Importing teacher
+1772126805.093523: Importing search
+1772126805.093986: Importing db
+1772126805.0944376: Importing utils
+1772126805.0949483: --- main() start ---
+1772126805.095321: > init_firebase
+1772126805.0958571: > inject_custom_css
+1772126805.0985062: > hidden styles
+1772126805.1247065: > render_universal_search
+1772126805.132745: > user routing
+1772126805.1336105: > admin_page start
+1772126812.9464397: > admin_page end
+1772126812.9512281: --- main() end ---
+1772126818.3294394: --- APP START ---
+1772126818.33355: Importing login
+1772126818.335579: Importing admin
+1772126818.3372216: Importing teacher
+1772126818.3394823: Importing search
+1772126818.341488: Importing db
+1772126818.3421466: Importing utils
+1772126818.3458877: --- main() start ---
+1772126818.3470483: > init_firebase
+1772126818.3482637: > inject_custom_css
+1772126818.3545158: > hidden styles
+1772126818.401204: > render_universal_search
+1772126837.1238685: > user routing
+1772126837.1251478: > admin_page start
+1772126846.3857486: > admin_page end
+1772126846.390441: --- main() end ---
+1772126847.011652: --- APP START ---
+1772126847.013147: Importing login
+1772126847.0145333: Importing admin
+1772126847.0146472: Importing teacher
+1772126847.0147226: Importing search
+1772126847.0147948: Importing db
+1772126847.0158854: Importing utils
+1772126847.0163512: --- main() start ---
+1772126847.0166528: > init_firebase
+1772126847.0171764: > inject_custom_css
+1772126847.019865: > hidden styles
+1772126847.048238: > render_universal_search
+1772126847.059566: > user routing
+1772126847.0627403: > admin_page start
+1772126847.1021512: > admin_page end
+1772126847.1054244: --- main() end ---
+1772126857.2704597: --- APP START ---
+1772126857.2746418: Importing login
+1772126857.2751226: Importing admin
+1772126857.276007: Importing teacher
+1772126857.2762442: Importing search
+1772126857.276893: Importing db
+1772126857.2775204: Importing utils
+1772126857.278237: --- main() start ---
+1772126857.2790856: > init_firebase
+1772126857.279716: > inject_custom_css
+1772126857.283929: > hidden styles
+1772126857.3190377: > render_universal_search
+1772126857.327769: > user routing
+1772126857.329366: > admin_page start
+1772126857.3792994: > admin_page end
+1772126857.3852086: --- main() end ---
+1772126864.3865466: --- APP START ---
+1772126864.387739: Importing login
+1772126864.3888319: Importing admin
+1772126864.3894894: Importing teacher
+1772126864.3910983: Importing search
+1772126864.391553: Importing db
+1772126864.3920653: Importing utils
+1772126864.3927255: --- main() start ---
+1772126864.3929288: > init_firebase
+1772126864.3935974: > inject_custom_css
+1772126864.3969326: > hidden styles
+1772126864.4196265: > render_universal_search
+1772126888.114341: > user routing
+1772126888.115689: > admin_page start
+1772126888.2291749: > admin_page end
+1772126888.2360237: --- main() end ---
+1772192562.5214207: --- APP START ---
+1772192562.7603893: Importing login
+1772192567.008105: Importing admin
+1772192567.0113125: Importing teacher
+1772192567.013032: Importing search
+1772192567.014364: Importing db
+1772192567.014724: Importing utils
+1772192567.0169773: --- main() start ---
+1772192567.0176044: > init_firebase
+1772192567.2855403: > inject_custom_css
+1772192567.2873728: > hidden styles
+1772192569.4398735: --- main() end ---
+1772192578.8625262: --- APP START ---
+1772192578.863998: Importing login
+1772192578.8641477: Importing admin
+1772192578.8642504: Importing teacher
+1772192578.8643262: Importing search
+1772192578.864502: Importing db
+1772192578.864942: Importing utils
+1772192578.8659484: --- main() start ---
+1772192578.8661406: > init_firebase
+1772192578.866665: > inject_custom_css
+1772192578.8686256: > hidden styles
+1772192579.0758357: --- APP START ---
+1772192579.077593: Importing login
+1772192579.0786476: Importing admin
+1772192579.078749: Importing teacher
+1772192579.0789826: Importing search
+1772192579.0790672: Importing db
+1772192579.0791368: Importing utils
+1772192579.080182: --- main() start ---
+1772192579.0802953: > init_firebase
+1772192579.0804682: > inject_custom_css
+1772192579.082886: > hidden styles
+1772192579.1015265: > render_universal_search
+1772192581.3777165: > user routing
+1772192581.3798027: > admin_page start
+1772192581.9992712: > admin_page end
+1772192582.002627: --- main() end ---
+1772192618.283631: --- APP START ---
+1772192618.286438: Importing login
+1772192618.28661: Importing admin
+1772192618.2867162: Importing teacher
+1772192618.2873595: Importing search
+1772192618.287503: Importing db
+1772192618.2876089: Importing utils
+1772192618.2880738: --- main() start ---
+1772192618.288519: > init_firebase
+1772192618.2898543: > inject_custom_css
+1772192618.2936652: > hidden styles
+1772192618.3204079: > render_universal_search
+1772192621.0722725: > user routing
+1772192621.0737987: > admin_page start
+1772192621.2316906: > admin_page end
+1772192621.2382097: --- main() end ---
+1772192629.2484803: --- APP START ---
+1772192629.25026: Importing login
+1772192629.2515662: Importing admin
+1772192629.252043: Importing teacher
+1772192629.2526467: Importing search
+1772192629.2527566: Importing db
+1772192629.2531378: Importing utils
+1772192629.2537963: --- main() start ---
+1772192629.254301: > init_firebase
+1772192629.2548041: > inject_custom_css
+1772192629.2574644: > hidden styles
+1772192629.287665: > render_universal_search
+1772192629.29513: > user routing
+1772192629.2967522: > admin_page start
+1772192648.4155955: > admin_page end
+1772192648.4202912: --- main() end ---
+1772193415.3712952: --- APP START ---
+1772193415.3737361: Importing login
+1772193415.400639: Importing admin
+1772193415.4030144: Importing teacher
+1772193415.4036944: Importing search
+1772193415.4066997: Importing db
+1772193415.406834: Importing utils
+1772193415.4084678: --- main() start ---
+1772193415.4085808: > init_firebase
+1772193415.408785: > inject_custom_css
+1772193415.4131103: > hidden styles
+1772193415.4361436: > render_universal_search
+1772193469.1585417: > user routing
+1772193469.164666: > admin_page start
+1772193495.4506295: > admin_page end
+1772193495.4542327: --- main() end ---
+1772193510.6617827: --- APP START ---
+1772193510.6641319: Importing login
+1772193510.7081852: Importing admin
+1772193510.7102883: Importing teacher
+1772193510.7142317: Importing search
+1772193510.7200367: Importing db
+1772193510.720182: Importing utils
+1772193510.7231634: --- main() start ---
+1772193510.723857: > init_firebase
+1772193510.7248864: > inject_custom_css
+1772193510.7281144: > hidden styles
+1772193510.7751102: > render_universal_search
+1772193527.6033394: > user routing
+1772193527.6083455: > admin_page start
+1772193560.271819: > admin_page end
+1772193560.2750103: --- main() end ---
+1772193623.1015203: --- APP START ---
+1772193623.1030245: Importing login
+1772193623.1036623: Importing admin
+1772193623.1038303: Importing teacher
+1772193623.1039348: Importing search
+1772193623.1040277: Importing db
+1772193623.104141: Importing utils
+1772193623.1043835: --- main() start ---
+1772193623.1045055: > init_firebase
+1772193623.1047704: > inject_custom_css
+1772193623.1084304: > hidden styles
+1772193623.1422088: > render_universal_search
+1772193625.6626635: > user routing
+1772193625.6645246: > admin_page start
+1772193650.8385165: > admin_page end
+1772193650.842119: --- main() end ---
+1772193690.7975383: --- APP START ---
+1772193690.798767: Importing login
+1772193690.8027143: Importing admin
+1772193690.8038104: Importing teacher
+1772193690.8045862: Importing search
+1772193690.805107: Importing db
+1772193690.8052073: Importing utils
+1772193690.8053477: --- main() start ---
+1772193690.805428: > init_firebase
+1772193690.805592: > inject_custom_css
+1772193690.807574: > hidden styles
+1772193690.8422246: > render_universal_search
+1772193692.3129022: > user routing
+1772193692.3138082: > admin_page start
+1772193727.568873: > admin_page end
+1772193727.5748436: --- main() end ---
+1772194000.5141678: --- APP START ---
+1772194000.5149467: Importing login
+1772194000.5150707: Importing admin
+1772194000.5163395: Importing teacher
+1772194000.5165234: Importing search
+1772194000.5167704: Importing db
+1772194000.516865: Importing utils
+1772194000.5169997: --- main() start ---
+1772194000.517923: > init_firebase
+1772194000.5184064: > inject_custom_css
+1772194000.5205007: > hidden styles
+1772194000.5758286: > render_universal_search
+1772198611.283398: --- APP START ---
+1772198611.415328: Importing login
+1772198615.4353223: Importing admin
+1772198615.4374454: Importing teacher
+1772198615.4392488: Importing search
+1772198615.441213: Importing db
+1772198615.4417853: Importing utils
+1772198615.4440842: --- main() start ---
+1772198615.4456258: > init_firebase
+1772198615.7656338: > inject_custom_css
+1772198615.7670262: > hidden styles
+1772198633.28498: --- main() end ---
+1772198677.2486799: --- APP START ---
+1772198677.2503786: Importing login
+1772198677.250518: Importing admin
+1772198677.2507634: Importing teacher
+1772198677.2511368: Importing search
+1772198677.2519274: Importing db
+1772198677.2520502: Importing utils
+1772198677.2521763: --- main() start ---
+1772198677.2522342: > init_firebase
+1772198677.252386: > inject_custom_css
+1772198677.254769: > hidden styles
+1772198679.9143474: --- APP START ---
+1772198679.9174736: Importing login
+1772198679.9185092: Importing admin
+1772198679.9186091: Importing teacher
+1772198679.9186642: Importing search
+1772198679.9187088: Importing db
+1772198679.918755: Importing utils
+1772198679.9188495: --- main() start ---
+1772198679.9189143: > init_firebase
+1772198679.9190755: > inject_custom_css
+1772198679.9212778: > hidden styles
+1772198679.9490635: > render_universal_search
+1772198716.839788: > user routing
+1772198716.8422031: > admin_page start
+1772198729.3362343: > admin_page end
+1772198729.3418002: --- main() end ---
+1772198742.04724: --- APP START ---
+1772198742.0533912: Importing login
+1772198742.0537229: Importing admin
+1772198742.0539873: Importing teacher
+1772198742.0542672: Importing search
+1772198742.0544982: Importing db
+1772198742.0547352: Importing utils
+1772198742.0551558: --- main() start ---
+1772198742.0553982: > init_firebase
+1772198742.0597713: > inject_custom_css
+1772198742.0706654: > hidden styles
+1772198742.1303923: > render_universal_search
+1772198762.2602043: > user routing
+1772198762.2616186: > admin_page start
+1772198762.3708262: > admin_page end
+1772198762.377572: --- main() end ---
+1772198779.1733336: --- APP START ---
+1772198779.1742227: Importing login
+1772198779.1743472: Importing admin
+1772198779.1744223: Importing teacher
+1772198779.1744921: Importing search
+1772198779.174564: Importing db
+1772198779.174636: Importing utils
+1772198779.1747735: --- main() start ---
+1772198779.174847: > init_firebase
+1772198779.1750157: > inject_custom_css
+1772198779.1796565: > hidden styles
+1772198779.2141125: > render_universal_search
+1772198779.2224762: > user routing
+1772198779.2237127: > admin_page start
+1772198788.539648: > admin_page end
+1772198788.5448227: --- main() end ---
+1772198929.8271503: --- APP START ---
+1772198929.8277674: Importing login
+1772198929.8282778: Importing admin
+1772198929.8289392: Importing teacher
+1772198929.8290436: Importing search
+1772198929.8291175: Importing db
+1772198929.8291917: Importing utils
+1772198929.829328: --- main() start ---
+1772198929.8294072: > init_firebase
+1772198929.8295724: > inject_custom_css
+1772198929.8327353: > hidden styles
+1772198929.8760602: > render_universal_search
+1772198950.4589946: > user routing
+1772198950.4610868: > admin_page start
+1772198951.0575318: > admin_page end
+1772198951.063291: --- main() end ---
+1772198964.0132365: --- APP START ---
+1772198964.0157638: Importing login
+1772198964.0181966: Importing admin
+1772198964.0186281: Importing teacher
+1772198964.0187125: Importing search
+1772198964.018788: Importing db
+1772198964.01886: Importing utils
+1772198964.0189886: --- main() start ---
+1772198964.0190613: > init_firebase
+1772198964.0204906: > inject_custom_css
+1772198964.0289743: > hidden styles
+1772198964.0878663: > render_universal_search
+1772198964.0989878: > user routing
+1772198964.1016014: > admin_page start
+1772198964.1684647: > admin_page end
+1772198964.1741564: --- main() end ---
+1772198982.5422359: --- APP START ---
+1772198982.5478146: Importing login
+1772198982.5496936: Importing admin
+1772198982.5524545: Importing teacher
+1772198982.552744: Importing search
+1772198982.5529454: Importing db
+1772198982.553111: Importing utils
+1772198982.5534136: --- main() start ---
+1772198982.5535758: > init_firebase
+1772198982.553918: > inject_custom_css
+1772198982.5634577: > hidden styles
+1772198982.6304324: > render_universal_search
+1772199001.7448318: > user routing
+1772199001.7462687: > admin_page start
+1772199031.0574384: > admin_page end
+1772199031.0752583: --- main() end ---
+1772199067.3276787: --- APP START ---
+1772199067.3281994: Importing login
+1772199067.3282843: Importing admin
+1772199067.3322215: Importing teacher
+1772199067.3323262: Importing search
+1772199067.332393: Importing db
+1772199067.3324587: Importing utils
+1772199067.3325849: --- main() start ---
+1772199067.3326452: > init_firebase
+1772199067.3328023: > inject_custom_css
+1772199067.3343263: > hidden styles
+1772199067.4081478: > render_universal_search
+1772199087.0544627: > user routing
+1772199087.0568871: > admin_page start
+1772199087.1712592: > admin_page end
+1772199087.1759777: --- main() end ---
+1772199220.0632317: --- APP START ---
+1772199220.064947: Importing login
+1772199220.087364: Importing admin
+1772199220.0907214: Importing teacher
+1772199220.0931594: Importing search
+1772199220.0951455: Importing db
+1772199220.0955954: Importing utils
+1772199220.0983768: --- main() start ---
+1772199220.099337: > init_firebase
+1772199220.0995424: > inject_custom_css
+1772199220.101531: > hidden styles
+1772199220.1375089: > render_universal_search
+1772199239.722007: > user routing
+1772199239.7228608: > admin_page start
+1772199239.7708402: > admin_page end
+1772199239.7754886: --- main() end ---
+1772199289.4827552: --- APP START ---
+1772199289.48493: Importing login
+1772199289.4850755: Importing admin
+1772199289.4851604: Importing teacher
+1772199289.485238: Importing search
+1772199289.4853113: Importing db
+1772199289.4853823: Importing utils
+1772199289.4855256: --- main() start ---
+1772199289.485607: > init_firebase
+1772199289.4857893: > inject_custom_css
+1772199289.4898694: > hidden styles
+1772199289.518345: > render_universal_search
+1772199309.5385985: > user routing
+1772199309.5399184: > admin_page start
+1772199318.4026845: > admin_page end
+1772199318.4064224: --- main() end ---
+1772199328.780428: --- APP START ---
+1772199328.7816334: Importing login
+1772199328.78247: Importing admin
+1772199328.7826498: Importing teacher
+1772199328.7827277: Importing search
+1772199328.7827964: Importing db
+1772199328.7828624: Importing utils
+1772199328.7829921: --- main() start ---
+1772199328.7830665: > init_firebase
+1772199328.7835963: > inject_custom_css
+1772199328.7864091: > hidden styles
+1772199328.827318: > render_universal_search
+1772199328.8363194: > user routing
+1772199328.8376818: > admin_page start
+1772199336.6405232: > admin_page end
+1772199336.6477363: --- main() end ---
+1772199374.8005664: --- APP START ---
+1772199374.8011546: Importing login
+1772199374.8012757: Importing admin
+1772199374.8013754: Importing teacher
+1772199374.8014536: Importing search
+1772199374.8015308: Importing db
+1772199374.8016043: Importing utils
+1772199374.801748: --- main() start ---
+1772199374.801802: > init_firebase
+1772199374.801925: > inject_custom_css
+1772199374.803279: > hidden styles
+1772199374.8452978: > render_universal_search
+1772199394.0208724: > user routing
+1772199394.0229356: > admin_page start
+1772199402.8874683: > admin_page end
+1772199402.8932827: --- main() end ---
+1772199718.2141044: --- APP START ---
+1772199718.586097: --- APP START ---
+1772199718.5872407: Importing login
+1772199718.6311884: Importing admin
+1772199718.6331701: Importing teacher
+1772199718.6360736: Importing search
+1772199718.63673: Importing db
+1772199718.6368327: Importing utils
+1772199718.6373446: --- main() start ---
+1772199718.6374347: > init_firebase
+1772199718.6375942: > inject_custom_css
+1772199718.6392467: > hidden styles
+1772199718.722254: > render_universal_search
+1772199758.1549928: > user routing
+1772199758.15694: > admin_page start
+1772199763.1933606: > admin_page end
+1772199763.2054756: --- main() end ---
+1772199790.8492155: --- APP START ---
+1772199790.850829: Importing login
+1772199790.8515513: Importing admin
+1772199790.851689: Importing teacher
+1772199790.8517685: Importing search
+1772199790.851851: Importing db
+1772199790.85192: Importing utils
+1772199790.8520627: --- main() start ---
+1772199790.852145: > init_firebase
+1772199790.8523219: > inject_custom_css
+1772199790.8567557: > hidden styles
+1772199790.90312: > render_universal_search
+1772199814.8109388: > user routing
+1772199814.813603: > admin_page start
+1772199823.9539042: > admin_page end
+1772199823.9596395: --- main() end ---
+1772199871.1018631: --- APP START ---
+1772199871.1029348: Importing login
+1772199871.1030755: Importing admin
+1772199871.1031568: Importing teacher
+1772199871.103229: Importing search
+1772199871.105071: Importing db
+1772199871.1062021: Importing utils
+1772199871.1069107: --- main() start ---
+1772199871.1074715: > init_firebase
+1772199871.1087828: > inject_custom_css
+1772199871.1131535: > hidden styles
+1772199871.1441994: > render_universal_search
+1772199891.238817: > user routing
+1772199891.240152: > admin_page start
+1772199900.3564365: > admin_page end
+1772199900.3608835: --- main() end ---
+1772199924.2898586: --- APP START ---
+1772199924.2977834: Importing login
+1772199924.2979288: Importing admin
+1772199924.2980013: Importing teacher
+1772199924.2980714: Importing search
+1772199924.2981353: Importing db
+1772199924.2982018: Importing utils
+1772199924.2983282: --- main() start ---
+1772199924.2983916: > init_firebase
+1772199924.2985444: > inject_custom_css
+1772199924.3078947: > hidden styles
+1772199924.3930206: > render_universal_search
+1772199944.427632: > user routing
+1772199944.428997: > admin_page start
+1772199996.295247: > admin_page end
+1772199996.3153775: --- main() end ---
+1772200005.668582: --- APP START ---
+1772200005.6698227: Importing login
+1772200005.6699615: Importing admin
+1772200005.6700459: Importing teacher
+1772200005.6701317: Importing search
+1772200005.6702206: Importing db
+1772200005.670294: Importing utils
+1772200005.6728785: --- main() start ---
+1772200005.6731572: > init_firebase
+1772200005.6735084: > inject_custom_css
+1772200005.6767383: > hidden styles
+1772200005.7191973: > render_universal_search
+1772200025.4375749: > user routing
+1772200025.4391572: > admin_page start
+1772200035.322507: > admin_page end
+1772200035.327301: --- main() end ---
+1772200052.158245: --- APP START ---
+1772200052.160595: Importing login
+1772200052.161059: Importing admin
+1772200052.1612265: Importing teacher
+1772200052.161349: Importing search
+1772200052.1614563: Importing db
+1772200052.1615615: Importing utils
+1772200052.1617844: --- main() start ---
+1772200052.1619282: > init_firebase
+1772200052.1622834: > inject_custom_css
+1772200052.1650307: > hidden styles
+1772200052.2142344: > render_universal_search
+1772200071.7433684: > user routing
+1772200071.7442312: > admin_page start
+1772200080.6531303: > admin_page end
+1772200080.6578538: --- main() end ---
+1772200098.6929638: --- APP START ---
+1772200098.6940782: Importing login
+1772200098.6953223: Importing admin
+1772200098.695444: Importing teacher
+1772200098.695525: Importing search
+1772200098.69618: Importing db
+1772200098.6968932: Importing utils
+1772200098.6979005: --- main() start ---
+1772200098.6993496: > init_firebase
+1772200098.7007344: > inject_custom_css
+1772200098.7046356: > hidden styles
+1772200098.743827: > render_universal_search
+1772200118.6337485: > user routing
+1772200118.6382487: > admin_page start
+1772200119.4706995: > admin_page end
+1772200119.4750092: --- main() end ---
+1772200127.0466182: --- APP START ---
+1772200127.0514276: Importing login
+1772200127.0518837: Importing admin
+1772200127.0576556: Importing teacher
+1772200127.058076: Importing search
+1772200127.0582147: Importing db
+1772200127.0583417: Importing utils
+1772200127.0585783: --- main() start ---
+1772200127.0587049: > init_firebase
+1772200127.0590014: > inject_custom_css
+1772200127.068866: > hidden styles
+1772200127.1084483: > render_universal_search
+1772200127.1160266: > user routing
+1772200127.1187792: > admin_page start
+1772200127.242422: > admin_page end
+1772200127.245792: --- main() end ---
+1772200172.6287675: --- APP START ---
+1772200172.6306882: Importing login
+1772200172.6314063: Importing admin
+1772200172.6320179: Importing teacher
+1772200172.632249: Importing search
+1772200172.6323538: Importing db
+1772200172.6324518: Importing utils
+1772200172.6325872: --- main() start ---
+1772200172.6351147: > init_firebase
+1772200172.6358404: > inject_custom_css
+1772200172.6403322: > hidden styles
+1772200172.6800327: > render_universal_search
+1772200192.622942: > user routing
+1772200192.6240547: > admin_page start
+1772200201.6581964: > admin_page end
+1772200201.680614: --- main() end ---
+1772200250.9505188: --- APP START ---
+1772200250.9510603: Importing login
+1772200250.9511817: Importing admin
+1772200250.9536335: Importing teacher
+1772200250.955499: Importing search
+1772200250.9556913: Importing db
+1772200250.9557836: Importing utils
+1772200250.956405: --- main() start ---
+1772200250.9572592: > init_firebase
+1772200250.9576702: > inject_custom_css
+1772200250.9604304: > hidden styles
+1772200250.9906151: > render_universal_search
+1772200270.6723108: > user routing
+1772200270.6737916: > admin_page start
+1772200279.5757222: > admin_page end
+1772200279.5784092: --- main() end ---
+1772200348.420594: --- APP START ---
+1772200348.4212787: Importing login
+1772200348.421416: Importing admin
+1772200348.4244335: Importing teacher
+1772200348.4251454: Importing search
+1772200348.4254513: Importing db
+1772200348.425536: Importing utils
+1772200348.4261935: --- main() start ---
+1772200348.4262774: > init_firebase
+1772200348.4264526: > inject_custom_css
+1772200348.4381657: > hidden styles
+1772200348.4651823: > render_universal_search
+1772200368.1810105: > user routing
+1772200368.1822648: > admin_page start
+1772200378.4624767: > admin_page end
+1772200378.4664462: --- main() end ---
+1772200394.3314023: --- APP START ---
+1772200394.3335106: Importing login
+1772200394.3336506: Importing admin
+1772200394.3340511: Importing teacher
+1772200394.3341537: Importing search
+1772200394.3348155: Importing db
+1772200394.3352838: Importing utils
+1772200394.3354795: --- main() start ---
+1772200394.3355904: > init_firebase
+1772200394.3361368: > inject_custom_css
+1772200394.3396447: > hidden styles
+1772200394.3671165: > render_universal_search
+1772200413.933454: > user routing
+1772200413.9347284: > admin_page start
+1772200601.4961753: --- APP START ---
+1772200601.498605: Importing login
+1772200601.4993174: Importing admin
+1772200601.500913: Importing teacher
+1772200601.502393: Importing search
+1772200601.5025954: Importing db
+1772200601.502712: Importing utils
+1772200601.5029173: --- main() start ---
+1772200601.5030544: > init_firebase
+1772200601.5033681: > inject_custom_css
+1772200601.5107877: > hidden styles
+1772200601.551335: > render_universal_search
+1772200628.4430315: > user routing
+1772200628.4443119: > admin_page start
+1772200654.4059343: --- APP START ---
+1772200654.4068105: Importing login
+1772200654.4070563: Importing admin
+1772200654.4071743: Importing teacher
+1772200654.4303825: Importing search
+1772200654.4401035: Importing db
+1772200654.4661798: Importing utils
+1772200654.480636: --- main() start ---
+1772200654.4904947: > init_firebase
+1772200654.4907236: > inject_custom_css
+1772200654.4991527: > hidden styles
+1772200740.894347: --- APP START ---
+1772200741.0285904: Importing login
+1772200743.4473958: Importing admin
+1772200743.4485524: Importing teacher
+1772200743.4494283: Importing search
+1772200743.4508765: Importing db
+1772200743.4514575: Importing utils
+1772200743.4531422: --- main() start ---
+1772200743.4536512: > init_firebase
+1772200743.6628387: > inject_custom_css
+1772200743.6647394: > hidden styles
+1772200752.5898705: --- main() end ---
+1772200768.5465345: --- APP START ---
+1772200768.5484374: Importing login
+1772200768.549134: Importing admin
+1772200768.5494766: Importing teacher
+1772200768.5495741: Importing search
+1772200768.5496433: Importing db
+1772200768.549715: Importing utils
+1772200768.5509393: --- main() start ---
+1772200768.5512433: > init_firebase
+1772200768.5519195: > inject_custom_css
+1772200768.5541215: > hidden styles
+1772200768.7017748: --- APP START ---
+1772200768.7024667: Importing login
+1772200768.7047105: Importing admin
+1772200768.7055042: Importing teacher
+1772200768.706882: Importing search
+1772200768.7073534: Importing db
+1772200768.7078602: Importing utils
+1772200768.7084136: --- main() start ---
+1772200768.708497: > init_firebase
+1772200768.7090375: > inject_custom_css
+1772200768.7119076: > hidden styles
+1772200768.7370617: > render_universal_search
+1772200775.5126746: > user routing
+1772200775.5136156: > admin_page start
+1772200776.0001595: > admin_page end
+1772200776.0045025: --- main() end ---
+1772200782.5429134: --- APP START ---
+1772200782.545785: Importing login
+1772200782.54607: Importing admin
+1772200782.54627: Importing teacher
+1772200782.5469415: Importing search
+1772200782.5471835: Importing db
+1772200782.5473676: Importing utils
+1772200782.5499187: --- main() start ---
+1772200782.5527081: > init_firebase
+1772200782.5538661: > inject_custom_css
+1772200782.5593958: > hidden styles
+1772200782.6136444: > render_universal_search
+1772200782.621845: > user routing
+1772200782.6229982: > admin_page start
+1772200782.7182636: > admin_page end
+1772200782.7239783: --- main() end ---
+1772200814.5247278: --- APP START ---
+1772200814.526618: Importing login
+1772200814.5272715: Importing admin
+1772200814.5278864: Importing teacher
+1772200814.5283973: Importing search
+1772200814.5288649: Importing db
+1772200814.5295353: Importing utils
+1772200814.5299137: --- main() start ---
+1772200814.5306094: > init_firebase
+1772200814.531216: > inject_custom_css
+1772200814.5344543: > hidden styles
+1772200814.5681846: > render_universal_search
+1772200815.9513988: > user routing
+1772200815.9525676: > admin_page start
+1772200824.8839: > admin_page end
+1772200824.8876348: --- main() end ---
+1772200849.866178: --- APP START ---
+1772200849.867312: Importing login
+1772200849.868257: Importing admin
+1772200849.8683927: Importing teacher
+1772200849.86848: Importing search
+1772200849.8685575: Importing db
+1772200849.8686352: Importing utils
+1772200849.8687768: --- main() start ---
+1772200849.8688512: > init_firebase
+1772200849.869033: > inject_custom_css
+1772200849.8743386: > hidden styles
+1772200849.906771: > render_universal_search
+1772200851.3690026: > user routing
+1772200851.369818: > admin_page start
+1772200859.8815873: > admin_page end
+1772200859.8848307: --- main() end ---
+1772200865.99067: --- APP START ---
+1772200865.9953477: Importing login
+1772200865.9977703: Importing admin
+1772200865.9999607: Importing teacher
+1772200866.0017464: Importing search
+1772200866.0033922: Importing db
+1772200866.0053625: Importing utils
+1772200866.006081: --- main() start ---
+1772200866.006363: > init_firebase
+1772200866.0069456: > inject_custom_css
+1772200866.0206954: > hidden styles
+1772200866.07516: > render_universal_search
+1772200866.0811083: > user routing
+1772200866.082591: > admin_page start
+1772201046.3488104: > admin_page end
+1772201046.3535585: --- main() end ---
+1772201218.3238227: --- APP START ---
+1772201218.3267865: Importing login
+1772201218.356562: Importing admin
+1772201218.3581781: Importing teacher
+1772201218.359589: Importing search
+1772201218.361607: Importing db
+1772201218.3622606: Importing utils
+1772201218.36403: --- main() start ---
+1772201218.364585: > init_firebase
+1772201218.3651803: > inject_custom_css
+1772201218.3675494: > hidden styles
+1772201218.4011772: > render_universal_search
+1772201225.3040133: > user routing
+1772201225.3059843: > admin_page start
+1772201229.3697515: > admin_page end
+1772201229.372767: --- main() end ---
+1772201514.9820669: --- APP START ---
+1772201514.983657: Importing login
+1772201514.9843397: Importing admin
+1772201514.9844503: Importing teacher
+1772201514.9853787: Importing search
+1772201514.9864688: Importing db
+1772201514.986714: Importing utils
+1772201514.9879353: --- main() start ---
+1772201514.9888873: > init_firebase
+1772201514.9895754: > inject_custom_css
+1772201514.9969454: > hidden styles
+1772201515.5075405: --- main() end ---
+1772201934.3336666: --- APP START ---
+1772201934.3350794: Importing login
+1772201934.3466263: Importing admin
+1772201934.348854: Importing teacher
+1772201934.3509276: Importing search
+1772201934.3525186: Importing db
+1772201934.3530622: Importing utils
+1772201934.3552067: --- main() start ---
+1772201934.3558798: > init_firebase
+1772201934.356219: > inject_custom_css
+1772201934.3582582: > hidden styles
+1772201934.6106079: --- APP START ---
+1772201934.6117566: Importing login
+1772201934.6130836: Importing admin
+1772201934.6146374: Importing teacher
+1772201934.6153228: Importing search
+1772201934.6162674: Importing db
+1772201934.6200044: Importing utils
+1772201934.6229143: --- main() start ---
+1772201934.6230483: > init_firebase
+1772201934.6245482: > inject_custom_css
+1772201934.6399555: > hidden styles
+1772201934.6717055: > render_universal_search
+1772201941.6594133: > user routing
+1772201941.6614041: > admin_page start
+1772201942.163165: > admin_page end
+1772201942.1662385: --- main() end ---
+1772201955.0685747: --- APP START ---
+1772201955.0756097: Importing login
+1772201955.0762408: Importing admin
+1772201955.0763981: Importing teacher
+1772201955.076533: Importing search
+1772201955.0766573: Importing db
+1772201955.0767877: Importing utils
+1772201955.0770495: --- main() start ---
+1772201955.079319: > init_firebase
+1772201955.0805223: > inject_custom_css
+1772201955.0837002: > hidden styles
+1772201955.1229565: > render_universal_search
+1772201955.1304374: > user routing
+1772201955.132025: > admin_page start
+1772201955.2410948: > admin_page end
+1772201955.245316: --- main() end ---
+1772201964.431281: --- APP START ---
+1772201964.4324975: Importing login
+1772201964.4333656: Importing admin
+1772201964.4340594: Importing teacher
+1772201964.4344368: Importing search
+1772201964.4350107: Importing db
+1772201964.4350946: Importing utils
+1772201964.4352274: --- main() start ---
+1772201964.435305: > init_firebase
+1772201964.4354908: > inject_custom_css
+1772201964.4378088: > hidden styles
+1772201964.4711914: > render_universal_search
+1772201964.4838839: > user routing
+1772201964.4854238: > admin_page start
+1772201964.7828076: > admin_page end
+1772201964.7860422: --- main() end ---
+1772201980.6513052: --- APP START ---
+1772201980.6525502: Importing login
+1772201980.6533945: Importing admin
+1772201980.6535873: Importing teacher
+1772201980.653658: Importing search
+1772201980.6537197: Importing db
+1772201980.653794: Importing utils
+1772201980.6539369: --- main() start ---
+1772201980.654952: > init_firebase
+1772201980.655989: > inject_custom_css
+1772201980.6580646: > hidden styles
+1772201980.6913795: > render_universal_search
+1772201982.3055067: > user routing
+1772201982.3071427: > admin_page start
+1772201982.6110783: > admin_page end
+1772201982.6149094: --- main() end ---
+1772201998.0649598: --- APP START ---
+1772201998.0661345: Importing login
+1772201998.0667787: Importing admin
+1772201998.0671172: Importing teacher
+1772201998.0679023: Importing search
+1772201998.0683844: Importing db
+1772201998.0690494: Importing utils
+1772201998.069682: --- main() start ---
+1772201998.0698225: > init_firebase
+1772201998.0700185: > inject_custom_css
+1772201998.0735116: > hidden styles
+1772201998.1082659: > render_universal_search
+1772201998.1172013: > user routing
+1772201998.1211534: > admin_page start
+1772201998.368196: > admin_page end
+1772201998.374098: --- main() end ---
+1772202008.8417034: --- APP START ---
+1772202008.8482945: Importing login
+1772202008.851538: Importing admin
+1772202008.853568: Importing teacher
+1772202008.8558185: Importing search
+1772202008.8575456: Importing db
+1772202008.8613517: Importing utils
+1772202008.863461: --- main() start ---
+1772202008.8648245: > init_firebase
+1772202008.866929: > inject_custom_css
+1772202008.874292: > hidden styles
+1772202008.9333115: > render_universal_search
+1772202008.9450865: > user routing
+1772202008.9464536: > admin_page start
+1772202008.9850385: > admin_page end
+1772202008.9903: --- main() end ---
+1772202015.7709785: --- APP START ---
+1772202015.7733867: Importing login
+1772202015.7737186: Importing admin
+1772202015.7747571: Importing teacher
+1772202015.7757177: Importing search
+1772202015.7764099: Importing db
+1772202015.7765865: Importing utils
+1772202015.7771316: --- main() start ---
+1772202015.7784626: > init_firebase
+1772202015.7796166: > inject_custom_css
+1772202015.7852244: > hidden styles
+1772202015.8070219: > render_universal_search
+1772202017.52573: > user routing
+1772202017.5275555: > admin_page start
+1772202017.5788898: > admin_page end
+1772202017.5826201: --- main() end ---
+1772202024.0736146: --- APP START ---
+1772202024.0777948: Importing login
+1772202024.079793: Importing admin
+1772202024.0800989: Importing teacher
+1772202024.0803177: Importing search
+1772202024.0805483: Importing db
+1772202024.0807254: Importing utils
+1772202024.0830164: --- main() start ---
+1772202024.0857089: > init_firebase
+1772202024.088514: > inject_custom_css
+1772202024.0952904: > hidden styles
+1772202024.126705: > render_universal_search
+1772202024.1380851: > user routing
+1772202024.1396778: > admin_page start
+1772202052.1938462: > admin_page end
+1772202052.1977823: --- main() end ---
+1772202075.5377629: --- APP START ---
+1772202075.5439472: Importing login
+1772202075.544301: Importing admin
+1772202075.544512: Importing teacher
+1772202075.5463247: Importing search
+1772202075.54776: Importing db
+1772202075.5482087: Importing utils
+1772202075.5488334: --- main() start ---
+1772202075.5492175: > init_firebase
+1772202075.5496774: > inject_custom_css
+1772202075.5520158: > hidden styles
+1772202075.5764158: > render_universal_search
+1772202077.3327804: > user routing
+1772202077.3353264: > admin_page start
+1772202077.4000561: > admin_page end
+1772202077.4121447: --- main() end ---
+1772202099.5673976: --- APP START ---
+1772202099.56888: Importing login
+1772202099.5690029: Importing admin
+1772202099.5690942: Importing teacher
+1772202099.5691788: Importing search
+1772202099.5692582: Importing db
+1772202099.5693388: Importing utils
+1772202099.5694873: --- main() start ---
+1772202099.5695655: > init_firebase
+1772202099.569739: > inject_custom_css
+1772202099.5737422: > hidden styles
+1772202099.6100953: > render_universal_search
+1772202099.623023: > user routing
+1772202099.624923: > admin_page start
+1772202099.974616: > admin_page end
+1772202099.9803095: --- main() end ---
+1772202301.536813: --- APP START ---
+1772202301.5383542: Importing login
+1772202301.5398507: Importing admin
+1772202301.5408268: Importing teacher
+1772202301.5416281: Importing search
+1772202301.542368: Importing db
+1772202301.5435026: Importing utils
+1772202301.5457652: --- main() start ---
+1772202301.545885: > init_firebase
+1772202301.5460703: > inject_custom_css
+1772202301.5548093: > hidden styles
+1772202301.6061082: > render_universal_search
+1772202303.6625721: > user routing
+1772202303.6646743: > admin_page start
+1772202303.8458438: > admin_page end
+1772202303.8498023: --- main() end ---
+1772202379.2571807: --- APP START ---
+1772202379.2591481: Importing login
+1772202379.2791607: Importing admin
+1772202379.2813654: Importing teacher
+1772202379.2841163: Importing search
+1772202379.2866585: Importing db
+1772202379.28762: Importing utils
+1772202379.2898164: --- main() start ---
+1772202379.290289: > init_firebase
+1772202379.2922497: > inject_custom_css
+1772202379.2938454: > hidden styles
+1772202379.3253527: > render_universal_search
+1772202380.9507408: > user routing
+1772202380.952084: > admin_page start
+1772202381.058217: > admin_page end
+1772202381.0618947: --- main() end ---
+1772202409.6060839: --- APP START ---
+1772202409.606945: Importing login
+1772202409.6076868: Importing admin
+1772202409.609247: Importing teacher
+1772202409.6099997: Importing search
+1772202409.6107569: Importing db
+1772202409.6109507: Importing utils
+1772202409.6115193: --- main() start ---
+1772202409.611916: > init_firebase
+1772202409.6123512: > inject_custom_css
+1772202409.6148047: > hidden styles
+1772202409.6472163: > render_universal_search
+1772202409.655705: > user routing
+1772202409.657083: > admin_page start
+1772202420.4110901: --- APP START ---
+1772202420.4125717: Importing login
+1772202420.413024: Importing admin
+1772202420.4133167: Importing teacher
+1772202420.413522: Importing search
+1772202420.4144819: Importing db
+1772202420.4148357: Importing utils
+1772202420.415249: --- main() start ---
+1772202420.415414: > init_firebase
+1772202420.416044: > inject_custom_css
+1772202420.4184551: > hidden styles
+1772202420.4544768: > render_universal_search
+1772202422.3493733: > user routing
+1772202422.3509443: > admin_page start
+1772202422.4781282: > admin_page end
+1772202422.4826345: --- main() end ---
+1772202458.6490626: --- APP START ---
+1772202458.6506546: Importing login
+1772202458.6513252: Importing admin
+1772202458.6520967: Importing teacher
+1772202458.6524827: Importing search
+1772202458.6527448: Importing db
+1772202458.6536806: Importing utils
+1772202458.6545887: --- main() start ---
+1772202458.655354: > init_firebase
+1772202458.6559386: > inject_custom_css
+1772202458.6581686: > hidden styles
+1772202458.689621: > render_universal_search
+1772202460.6609533: > user routing
+1772202460.6630075: > admin_page start
+1772202460.8340683: > admin_page end
+1772202460.850373: --- main() end ---
+1772202463.9500299: --- APP START ---
+1772202463.950586: Importing login
+1772202463.9506962: Importing admin
+1772202463.9507754: Importing teacher
+1772202463.9508498: Importing search
+1772202463.9509194: Importing db
+1772202463.9509852: Importing utils
+1772202463.9511056: --- main() start ---
+1772202463.951169: > init_firebase
+1772202463.9513202: > inject_custom_css
+1772202463.953712: > hidden styles
+1772202464.0140173: > render_universal_search
+1772202464.032201: > user routing
+1772202464.0391839: > admin_page start
+1772202473.262746: --- APP START ---
+1772202473.2650375: Importing login
+1772202473.2654407: Importing admin
+1772202473.2657397: Importing teacher
+1772202473.2666404: Importing search
+1772202473.267289: Importing db
+1772202473.2674322: Importing utils
+1772202473.267811: --- main() start ---
+1772202473.2686381: > init_firebase
+1772202473.270229: > inject_custom_css
+1772202473.272323: > hidden styles
+1772202473.2976227: > render_universal_search
+1772202473.3088176: > user routing
+1772202473.3105278: > admin_page start
+1772202473.3598177: > admin_page end
+1772202473.3641803: --- main() end ---
+1772202508.2307708: --- APP START ---
+1772202508.233995: Importing login
+1772202508.2358282: Importing admin
+1772202508.2361557: Importing teacher
+1772202508.2380292: Importing search
+1772202508.2389162: Importing db
+1772202508.2394505: Importing utils
+1772202508.241515: --- main() start ---
+1772202508.2421007: > init_firebase
+1772202508.2434368: > inject_custom_css
+1772202508.2473814: > hidden styles
+1772202508.2983031: > render_universal_search
+1772202509.9019985: > user routing
+1772202509.9028127: > admin_page start
+1772202510.23432: --- APP START ---
+1772202510.234899: Importing login
+1772202510.2367477: Importing admin
+1772202510.2385356: Importing teacher
+1772202510.2394998: Importing search
+1772202510.240941: Importing db
+1772202510.2411425: Importing utils
+1772202510.2412944: --- main() start ---
+1772202510.241572: > init_firebase
+1772202510.2417572: > inject_custom_css
+1772202510.2441146: > hidden styles
+1772202510.2748623: > render_universal_search
+1772202510.2826881: > user routing
+1772202510.283738: > admin_page start
+1772202510.3797793: > admin_page end
+1772202510.3858302: --- main() end ---
+1772202528.8740158: --- APP START ---
+1772202528.876475: Importing login
+1772202528.8769767: Importing admin
+1772202528.87773: Importing teacher
+1772202528.87822: Importing search
+1772202528.8783338: Importing db
+1772202528.8784056: Importing utils
+1772202528.8785326: --- main() start ---
+1772202528.8786016: > init_firebase
+1772202528.8787506: > inject_custom_css
+1772202528.880796: > hidden styles
+1772202528.9153574: > render_universal_search
+1772202528.924218: > user routing
+1772202528.926079: > admin_page start
+1772202528.9846437: > admin_page end
+1772202528.9889822: --- main() end ---
+1772202535.6939256: --- APP START ---
+1772202535.6955543: Importing login
+1772202535.696196: Importing admin
+1772202535.6963198: Importing teacher
+1772202535.696397: Importing search
+1772202535.6964698: Importing db
+1772202535.69654: Importing utils
+1772202535.6966681: --- main() start ---
+1772202535.6967394: > init_firebase
+1772202535.6968992: > inject_custom_css
+1772202535.6992161: > hidden styles
+1772202535.7329462: > render_universal_search
+1772202535.7410126: > user routing
+1772202535.7417493: > admin_page start
+1772202535.7551062: > admin_page end
+1772202535.7615516: --- main() end ---
+1772202569.2998528: --- APP START ---
+1772202569.301277: Importing login
+1772202569.3018289: Importing admin
+1772202569.302343: Importing teacher
+1772202569.3030288: Importing search
+1772202569.3034325: Importing db
+1772202569.3042376: Importing utils
+1772202569.3044224: --- main() start ---
+1772202569.305038: > init_firebase
+1772202569.3052475: > inject_custom_css
+1772202569.308258: > hidden styles
+1772202569.3377311: > render_universal_search
+1772202570.9153202: > user routing
+1772202570.9166245: > admin_page start
+1772202570.9564998: > admin_page end
+1772202570.9598224: --- main() end ---
+1772202580.1889076: --- APP START ---
+1772202580.1902251: Importing login
+1772202580.191277: Importing admin
+1772202580.191715: Importing teacher
+1772202580.1918466: Importing search
+1772202580.1919322: Importing db
+1772202580.1920881: Importing utils
+1772202580.192282: --- main() start ---
+1772202580.1924267: > init_firebase
+1772202580.1928313: > inject_custom_css
+1772202580.1958249: > hidden styles
+1772202580.2317784: > render_universal_search
+1772202580.2378938: > user routing
+1772202580.239219: > admin_page start
+1772202580.2783668: > admin_page end
+1772202580.282721: --- main() end ---
+1772202590.1766222: --- APP START ---
+1772202590.1793752: Importing login
+1772202590.1798809: Importing admin
+1772202590.1802378: Importing teacher
+1772202590.1814005: Importing search
+1772202590.181548: Importing db
+1772202590.18166: Importing utils
+1772202590.1818497: --- main() start ---
+1772202590.1819513: > init_firebase
+1772202590.1821728: > inject_custom_css
+1772202590.1855044: > hidden styles
+1772202590.2133257: > render_universal_search
+1772202590.2213445: > user routing
+1772202590.2233787: > admin_page start
+1772202618.0160298: > admin_page end
+1772202618.020518: --- main() end ---
+1772202659.977262: --- APP START ---
+1772202659.9836414: Importing login
+1772202659.9838245: Importing admin
+1772202659.9839246: Importing teacher
+1772202659.984353: Importing search
+1772202659.985611: Importing db
+1772202659.9857676: Importing utils
+1772202659.985952: --- main() start ---
+1772202659.9860313: > init_firebase
+1772202659.9862971: > inject_custom_css
+1772202659.9904537: > hidden styles
+1772202660.025332: > render_universal_search
+1772202661.6921682: > user routing
+1772202661.6943865: > admin_page start
+1772202661.762603: > admin_page end
+1772202661.7689352: --- main() end ---
+1772202724.8834605: --- APP START ---
+1772202724.889576: Importing login
+1772202724.8911052: Importing admin
+1772202724.8915358: Importing teacher
+1772202724.8918536: Importing search
+1772202724.8921542: Importing db
+1772202724.8923817: Importing utils
+1772202724.8927875: --- main() start ---
+1772202724.8930247: > init_firebase
+1772202724.893503: > inject_custom_css
+1772202724.903163: > hidden styles
+1772202724.952696: > render_universal_search
+1772202726.4644232: > user routing
+1772202726.4656267: > admin_page start
+1772202736.5200348: > admin_page end
+1772202736.5259585: --- main() end ---
+1772203794.6549027: --- APP START ---
+1772203794.6568968: Importing login
+1772203794.6889358: Importing admin
+1772203794.69203: Importing teacher
+1772203794.69497: Importing search
+1772203794.697037: Importing db
+1772203794.6979742: Importing utils
+1772203794.7003846: --- main() start ---
+1772203794.7007518: > init_firebase
+1772203794.7016544: > inject_custom_css
+1772203794.7050307: > hidden styles
+1772203794.7252731: > render_universal_search
+1772203832.5427597: > user routing
+1772203832.5459082: > admin_page start
+1772203837.3935728: > admin_page end
+1772203837.401309: --- main() end ---
+1772203861.4394906: --- APP START ---
+1772203861.4400675: Importing login
+1772203861.440173: Importing admin
+1772203861.4402473: Importing teacher
+1772203861.4403157: Importing search
+1772203861.4403877: Importing db
+1772203861.4404578: Importing utils
+1772203861.4405842: --- main() start ---
+1772203861.4406521: > init_firebase
+1772203861.4408092: > inject_custom_css
+1772203861.4434066: > hidden styles
+1772203861.4824185: > render_universal_search
+1772203866.1434846: --- APP START ---
+1772203866.1483657: Importing login
+1772203866.1492739: Importing admin
+1772203866.1523488: Importing teacher
+1772203866.1528618: Importing search
+1772203866.1534693: Importing db
+1772203866.153638: Importing utils
+1772203866.1538377: --- main() start ---
+1772203866.1539376: > init_firebase
+1772203866.1541574: > inject_custom_css
+1772203866.1599534: > hidden styles
+1772203866.1922731: > render_universal_search
+1772203868.3565848: --- APP START ---
+1772203868.3571322: Importing login
+1772203868.3581288: Importing admin
+1772203868.3583684: Importing teacher
+1772203868.3584602: Importing search
+1772203868.358537: Importing db
+1772203868.3586037: Importing utils
+1772203868.3587377: --- main() start ---
+1772203868.3588161: > init_firebase
+1772203868.3589804: > inject_custom_css
+1772203868.3605785: > hidden styles
+1772203868.394203: > render_universal_search
+1772203885.8836153: > user routing
+1772203885.8877995: > admin_page start
+1772203989.9630144: --- APP START ---
+1772203989.9645855: Importing login
+1772203989.9998362: Importing admin
+1772203990.0039592: Importing teacher
+1772203990.0059676: Importing search
+1772203990.0065358: Importing db
+1772203990.006634: Importing utils
+1772203990.0074215: --- main() start ---
+1772203990.0075252: > init_firebase
+1772203990.009992: > inject_custom_css
+1772203990.0138247: > hidden styles
+1772203990.0577035: > render_universal_search
+1772204013.3444397: > user routing
+1772204013.3454428: > admin_page start
+1772204022.3613734: > admin_page end
+1772204022.364516: --- main() end ---
+1772204071.0848882: --- APP START ---
+1772204071.0893333: Importing login
+1772204071.0909517: Importing admin
+1772204071.091173: Importing teacher
+1772204071.0912917: Importing search
+1772204071.0913982: Importing db
+1772204071.0915058: Importing utils
+1772204071.0917583: --- main() start ---
+1772204071.0929506: > init_firebase
+1772204071.0963514: > inject_custom_css
+1772204071.1022635: > hidden styles
+1772204071.1541924: > render_universal_search
+1772204090.9688265: > user routing
+1772204090.970508: > admin_page start
+1772204101.9270895: --- APP START ---
+1772204101.9276319: Importing login
+1772204101.9277475: Importing admin
+1772204101.9278343: Importing teacher
+1772204101.927913: Importing search
+1772204101.927989: Importing db
+1772204101.9280632: Importing utils
+1772204101.928211: --- main() start ---
+1772204101.928314: > init_firebase
+1772204101.930859: > inject_custom_css
+1772204101.9335735: > hidden styles
+1772204101.9635258: > render_universal_search
+1772204110.885715: > user routing
+1772204110.8874133: > admin_page start
+1772204110.9838593: > admin_page end
+1772204110.9879396: --- main() end ---
+1772204120.5253499: --- APP START ---
+1772204120.5274274: Importing login
+1772204120.5286217: Importing admin
+1772204120.529338: Importing teacher
+1772204120.5314996: Importing search
+1772204120.5321765: Importing db
+1772204120.5326824: Importing utils
+1772204120.5333724: --- main() start ---
+1772204120.5336854: > init_firebase
+1772204120.534275: > inject_custom_css
+1772204120.5358045: > hidden styles
+1772204120.5600126: > render_universal_search
+1772204144.8830585: > user routing
+1772204144.8845646: > admin_page start
+1772204144.9573534: > admin_page end
+1772204144.961897: --- main() end ---
+1772204435.3749366: --- APP START ---
+1772204435.3759441: Importing login
+1772204435.376146: Importing admin
+1772204435.3765185: Importing teacher
+1772204435.3786638: Importing search
+1772204435.3795989: Importing db
+1772204435.3800163: Importing utils
+1772204435.3804286: --- main() start ---
+1772204435.383681: > init_firebase
+1772204435.3864195: > inject_custom_css
+1772204435.3892858: > hidden styles
+1772204435.4287498: > render_universal_search
+1772204474.3737068: > user routing
+1772204474.3762915: > admin_page start
+1772204474.4839246: > admin_page end
+1772204474.4888577: --- main() end ---
+1772204484.5424583: --- APP START ---
+1772204484.543013: Importing login
+1772204484.543527: Importing admin
+1772204484.544496: Importing teacher
+1772204484.5449555: Importing search
+1772204484.5459893: Importing db
+1772204484.5465052: Importing utils
+1772204484.5472054: --- main() start ---
+1772204484.5478036: > init_firebase
+1772204484.5495875: > inject_custom_css
+1772204484.5539632: > hidden styles
+1772204484.5881493: > render_universal_search
+1772204484.5965836: > user routing
+1772204484.5988376: > admin_page start
+1772204484.7144792: > admin_page end
+1772204484.718851: --- main() end ---
+1772204502.5705283: --- APP START ---
+1772204502.5761633: Importing login
+1772204502.5778608: Importing admin
+1772204502.578978: Importing teacher
+1772204502.5804248: Importing search
+1772204502.5829952: Importing db
+1772204502.58421: Importing utils
+1772204502.5856795: --- main() start ---
+1772204502.5886838: > init_firebase
+1772204502.5907328: > inject_custom_css
+1772204502.598737: > hidden styles
+1772204502.6643188: > render_universal_search
+1772204524.749252: > user routing
+1772204524.7503278: > admin_page start
+1772204527.6179614: > admin_page end
+1772204527.6342652: --- main() end ---
+1772204545.66094: --- APP START ---
+1772204545.6645222: Importing login
+1772204545.6666253: Importing admin
+1772204545.6673298: Importing teacher
+1772204545.667502: Importing search
+1772204545.667688: Importing db
+1772204545.6678352: Importing utils
+1772204545.6681046: --- main() start ---
+1772204545.6687045: > init_firebase
+1772204545.6714787: > inject_custom_css
+1772204545.6768374: > hidden styles
+1772204545.7083073: > render_universal_search
+1772204565.2769594: > user routing
+1772204565.2788212: > admin_page start
+1772204575.0141904: > admin_page end
+1772204575.0177984: --- main() end ---
+1772206323.3874862: --- APP START ---
+1772206323.5887353: Importing login
+1772206326.283113: Importing admin
+1772206326.2843328: Importing teacher
+1772206326.2857678: Importing search
+1772206326.2874384: Importing db
+1772206326.2882853: Importing utils
+1772206326.2898586: --- main() start ---
+1772206326.2903483: > init_firebase
+1772206326.5107243: > inject_custom_css
+1772206326.5123992: > hidden styles
+1772206337.407753: --- main() end ---
+1772206361.411287: --- APP START ---
+1772206361.412131: Importing login
+1772206361.413106: Importing admin
+1772206361.4147623: Importing teacher
+1772206361.4148798: Importing search
+1772206361.4149532: Importing db
+1772206361.415034: Importing utils
+1772206361.4151752: --- main() start ---
+1772206361.4165623: > init_firebase
+1772206361.4171953: > inject_custom_css
+1772206361.419373: > hidden styles
+1772206361.5743916: --- APP START ---
+1772206361.5767787: Importing login
+1772206361.5770822: Importing admin
+1772206361.5771759: Importing teacher
+1772206361.577661: Importing search
+1772206361.5777626: Importing db
+1772206361.5778453: Importing utils
+1772206361.5780456: --- main() start ---
+1772206361.578118: > init_firebase
+1772206361.578279: > inject_custom_css
+1772206361.5808241: > hidden styles
+1772206361.5982268: > render_universal_search
+1772206363.4460335: > user routing
+1772206363.4466636: > admin_page start
+1772206364.0240815: > admin_page end
+1772206364.0270147: --- main() end ---
+1772206391.2058423: --- APP START ---
+1772206391.2100713: Importing login
+1772206391.2104697: Importing admin
+1772206391.2119052: Importing teacher
+1772206391.2155533: Importing search
+1772206391.2188015: Importing db
+1772206391.2210982: Importing utils
+1772206391.2216675: --- main() start ---
+1772206391.2227838: > init_firebase
+1772206391.2290518: > inject_custom_css
+1772206391.240926: > hidden styles
+1772206391.2940407: > render_universal_search
+1772206391.3020704: > user routing
+1772206391.3037152: > admin_page start
+1772206391.4965696: > admin_page end
+1772206391.4994955: --- main() end ---
+1772206396.5730624: --- APP START ---
+1772206396.5746639: Importing login
+1772206396.5753586: Importing admin
+1772206396.5762577: Importing teacher
+1772206396.5765479: Importing search
+1772206396.5766268: Importing db
+1772206396.5766962: Importing utils
+1772206396.5768278: --- main() start ---
+1772206396.5768943: > init_firebase
+1772206396.5770452: > inject_custom_css
+1772206396.579386: > hidden styles
+1772206396.6064095: > render_universal_search
+1772206397.9638438: > user routing
+1772206397.9681766: > admin_page start
+1772206398.0477197: > admin_page end
+1772206398.0513823: --- main() end ---
+1772206406.636998: --- APP START ---
+1772206406.6386826: Importing login
+1772206406.6390817: Importing admin
+1772206406.6391788: Importing teacher
+1772206406.639255: Importing search
+1772206406.6393726: Importing db
+1772206406.6394458: Importing utils
+1772206406.6396184: --- main() start ---
+1772206406.6413078: > init_firebase
+1772206406.6415577: > inject_custom_css
+1772206406.643164: > hidden styles
+1772206406.6761088: > render_universal_search
+1772206406.683725: > user routing
+1772206406.6853077: > admin_page start
+1772206415.9939964: > admin_page end
+1772206415.9975386: --- main() end ---
+1772206874.187049: --- APP START ---
+1772206874.1891944: Importing login
+1772206874.2044964: Importing admin
+1772206874.206519: Importing teacher
+1772206874.2084885: Importing search
+1772206874.2097235: Importing db
+1772206874.210406: Importing utils
+1772206874.212024: --- main() start ---
+1772206874.2133105: > init_firebase
+1772206874.2139003: > inject_custom_css
+1772206874.2165108: > hidden styles
+1772206874.2646627: > render_universal_search
+1772206881.1969168: > user routing
+1772206881.1985085: > admin_page start
+1772206886.5642474: > admin_page end
+1772206886.5691836: --- main() end ---
+1772206931.6545558: --- APP START ---
+1772206931.656323: Importing login
+1772206931.71751: Importing admin
+1772206931.718286: Importing teacher
+1772206931.7196772: --- APP START ---
+1772206931.7202494: Importing login
+1772206931.7214372: Importing admin
+1772206931.7241812: Importing search
+1772206931.7252426: Importing teacher
+1772206931.7276828: Importing search
+1772206931.7286313: Importing db
+1772206931.7291644: Importing db
+1772206931.729325: Importing utils
+1772206931.7317252: Importing utils
+1772206931.7324126: --- main() start ---
+1772206931.7325296: > init_firebase
+1772206931.8585377: > inject_custom_css
+1772206931.8603284: > hidden styles
+1772206931.9012258: > render_universal_search
+1772206933.4576309: > user routing
+1772206933.4586549: > admin_page start
+1772206942.9461234: > admin_page end
+1772206942.9493556: --- main() end ---
+1772206996.9515946: --- APP START ---
+1772206996.9540253: Importing login
+1772206996.9548995: Importing admin
+1772206996.9550183: Importing teacher
+1772206996.9550943: Importing search
+1772206996.9551668: Importing db
+1772206996.955233: Importing utils
+1772206996.955372: --- main() start ---
+1772206996.955455: > init_firebase
+1772206996.956092: > inject_custom_css
+1772206996.9591084: > hidden styles
+1772206997.0008936: > render_universal_search
+1772206998.6316805: > user routing
+1772206998.6336217: > admin_page start
+1772207008.5613697: > admin_page end
+1772207008.565595: --- main() end ---
+1772207021.1111724: --- APP START ---
+1772207021.1128242: Importing login
+1772207021.1132958: Importing admin
+1772207021.1138327: Importing teacher
+1772207021.1140068: Importing search
+1772207021.1142669: Importing db
+1772207021.1151528: Importing utils
+1772207021.1154213: --- main() start ---
+1772207021.1160913: > init_firebase
+1772207021.1163244: > inject_custom_css
+1772207021.1186557: > hidden styles
+1772207021.1435628: > render_universal_search
+1772207021.1541908: > user routing
+1772207021.1553235: > admin_page start
+1772207021.2500303: > admin_page end
+1772207021.254006: --- main() end ---
+1772207036.879319: --- APP START ---
+1772207036.8816764: Importing login
+1772207036.8823762: Importing admin
+1772207036.8830714: Importing teacher
+1772207036.8831716: Importing search
+1772207036.883231: Importing db
+1772207036.8832865: Importing utils
+1772207036.8837063: --- main() start ---
+1772207036.884716: > init_firebase
+1772207036.8852186: > inject_custom_css
+1772207036.8869543: > hidden styles
+1772207036.9231796: > render_universal_search
+1772207038.3125231: > user routing
+1772207038.3143632: > admin_page start
+1772207038.365676: > admin_page end
+1772207038.3751206: --- main() end ---
+1772207073.5442178: --- APP START ---
+1772207073.5477486: Importing login
+1772207073.5490453: Importing admin
+1772207073.549405: Importing teacher
+1772207073.5496671: Importing search
+1772207073.5498908: Importing db
+1772207073.5501072: Importing utils
+1772207073.5519545: --- main() start ---
+1772207073.5522797: > init_firebase
+1772207073.5557835: > inject_custom_css
+1772207073.5651367: > hidden styles
+1772207073.6400106: > render_universal_search
+1772207074.9751837: > user routing
+1772207074.9770126: > admin_page start
+1772207108.5490339: > admin_page end
+1772207108.5547981: --- main() end ---
+1772207173.390879: --- APP START ---
+1772207173.3966076: Importing login
+1772207173.3974905: Importing admin
+1772207173.398114: Importing teacher
+1772207173.3987064: Importing search
+1772207173.4003372: Importing db
+1772207173.4039261: Importing utils
+1772207173.404397: --- main() start ---
+1772207173.4058177: > init_firebase
+1772207173.407544: > inject_custom_css
+1772207173.4127233: > hidden styles
+1772207173.4543457: > render_universal_search
+1772207174.9384136: > user routing
+1772207174.942331: > admin_page start
+1772207175.0064292: > admin_page end
+1772207175.010381: --- main() end ---
+1772207388.9301064: --- APP START ---
+1772207389.1204255: --- APP START ---
+1772207389.1208942: Importing login
+1772207389.1624198: Importing admin
+1772207389.1653905: Importing teacher
+1772207389.1671789: Importing search
+1772207389.1684906: Importing db
+1772207389.1686087: Importing utils
+1772207389.1702986: --- main() start ---
+1772207389.1712346: > init_firebase
+1772207389.1717808: > inject_custom_css
+1772207389.1752741: > hidden styles
+1772207389.2139778: > render_universal_search
+1772207391.5094328: > user routing
+1772207391.5105903: > admin_page start
+1772207391.5908449: > admin_page end
+1772207391.594238: --- main() end ---
+1772207430.8411198: --- APP START ---
+1772207430.843437: Importing login
+1772207430.860783: Importing admin
+1772207430.8620663: Importing teacher
+1772207430.86378: Importing search
+1772207430.8677056: Importing db
+1772207430.8679006: Importing utils
+1772207430.8684251: --- main() start ---
+1772207430.8685122: > init_firebase
+1772207430.8686645: > inject_custom_css
+1772207430.870257: > hidden styles
+1772207430.9049034: > render_universal_search
+1772207432.3521469: > user routing
+1772207432.3538885: > admin_page start
+1772207432.440565: > admin_page end
+1772207432.4582336: --- main() end ---
+1772207682.4584594: --- APP START ---
+1772207682.460377: Importing login
+1772207682.4607756: Importing admin
+1772207682.4610662: Importing teacher
+1772207682.4613674: Importing search
+1772207682.4616382: Importing db
+1772207682.467189: Importing utils
+1772207682.467943: --- main() start ---
+1772207682.4743066: > init_firebase
+1772207682.4750476: > inject_custom_css
+1772207682.4819307: > hidden styles
+1772207682.5288637: > render_universal_search
+1772207689.6656497: > user routing
+1772207689.6672578: > admin_page start
+1772207689.7609637: > admin_page end
+1772207689.7643232: --- main() end ---
+1772207710.5419526: --- APP START ---
+1772207710.5430198: Importing login
+1772207710.544222: Importing admin
+1772207710.545326: Importing teacher
+1772207710.5460806: Importing search
+1772207710.546806: Importing db
+1772207710.5475197: Importing utils
+1772207710.5481646: --- main() start ---
+1772207710.548375: > init_firebase
+1772207710.5489385: > inject_custom_css
+1772207710.551386: > hidden styles
+1772207710.5811229: > render_universal_search
+1772207710.5895262: > user routing
+1772207710.5918918: > admin_page start
+1772207720.886592: > admin_page end
+1772207720.8934343: --- main() end ---
+1772207759.3968008: --- APP START ---
+1772207759.3988657: Importing login
+1772207759.3989956: Importing admin
+1772207759.3990695: Importing teacher
+1772207759.3991373: Importing search
+1772207759.3991992: Importing db
+1772207759.3992639: Importing utils
+1772207759.3993926: --- main() start ---
+1772207759.3994575: > init_firebase
+1772207759.3996298: > inject_custom_css
+1772207759.4016144: > hidden styles
+1772207759.4371927: > render_universal_search
+1772207761.3833592: > user routing
+1772207761.3848634: > admin_page start
+1772207761.462573: > admin_page end
+1772207761.467095: --- main() end ---
+1772208565.6299255: --- APP START ---
+1772208565.845065: --- APP START ---
+1772208565.8458424: Importing login
+1772208565.8914473: Importing admin
+1772208565.8937833: Importing teacher
+1772208565.8986907: Importing search
+1772208565.9001918: Importing db
+1772208565.9029589: Importing utils
+1772208565.9043026: --- main() start ---
+1772208565.9056113: > init_firebase
+1772208565.9067252: > inject_custom_css
+1772208565.9094865: > hidden styles
+1772208565.9537807: > render_universal_search
+1772208573.0422134: > user routing
+1772208573.0432744: > admin_page start
+1772208573.103127: > admin_page end
+1772208573.1066716: --- main() end ---
+1772208623.3472025: --- APP START ---
+1772208623.3484704: Importing login
+1772208623.3626106: Importing admin
+1772208623.3630533: Importing teacher
+1772208623.363404: Importing search
+1772208623.3665717: Importing db
+1772208623.366865: Importing utils
+1772208623.3679147: --- main() start ---
+1772208623.3680198: > init_firebase
+1772208623.368178: > inject_custom_css
+1772208623.3712554: > hidden styles
+1772208623.4099605: > render_universal_search
+1772208625.2388065: > user routing
+1772208625.2418535: > admin_page start
+1772208625.3675034: > admin_page end
+1772208625.3820417: --- main() end ---
+1772209197.5605326: --- APP START ---
+1772209197.56143: Importing login
+1772209197.5618944: Importing admin
+1772209197.5624404: Importing teacher
+1772209197.5626252: Importing search
+1772209197.5628288: Importing db
+1772209197.5629125: Importing utils
+1772209197.563649: --- main() start ---
+1772209197.5642607: > init_firebase
+1772209197.565242: > inject_custom_css
+1772209197.5669131: > hidden styles
+1772209197.599534: > render_universal_search
+1772209204.570164: > user routing
+1772209204.5718222: > admin_page start
+1772209204.815285: > admin_page end
+1772209204.8190677: --- main() end ---
+1772209252.4036653: --- APP START ---
+1772209252.4058082: Importing login
+1772209252.4059765: Importing admin
+1772209252.4060564: Importing teacher
+1772209252.4061704: Importing search
+1772209252.4065077: Importing db
+1772209252.407795: Importing utils
+1772209252.408582: --- main() start ---
+1772209252.408694: > init_firebase
+1772209252.4088593: > inject_custom_css
+1772209252.4113011: > hidden styles
+1772209252.4326153: > render_universal_search
+1772209253.9874308: > user routing
+1772209253.9903066: > admin_page start
+1772209254.323538: > admin_page end
+1772209254.3269362: --- main() end ---
+1772209401.7495513: --- APP START ---
+1772209402.0993388: --- APP START ---
+1772209402.0999084: Importing login
+1772209402.1164026: Importing admin
+1772209402.1179974: Importing teacher
+1772209402.1245613: Importing search
+1772209402.1261246: Importing db
+1772209402.127998: Importing utils
+1772209402.1301737: --- main() start ---
+1772209402.1310933: > init_firebase
+1772209402.1326895: > inject_custom_css
+1772209402.1385317: > hidden styles
+1772209402.1944406: > render_universal_search
+1772209404.1468654: > user routing
+1772209404.1480796: > admin_page start
+1772209404.387289: > admin_page end
+1772209404.3918655: --- main() end ---
+1772209689.224961: --- APP START ---
+1772209689.2345486: Importing login
+1772209689.2356298: Importing admin
+1772209689.2365818: Importing teacher
+1772209689.24013: Importing search
+1772209689.2405171: Importing db
+1772209689.2413657: Importing utils
+1772209689.2421622: --- main() start ---
+1772209689.2427833: > init_firebase
+1772209689.24382: > inject_custom_css
+1772209689.253914: > hidden styles
+1772209689.296289: > render_universal_search
+1772209696.315803: > user routing
+1772209696.317203: > admin_page start
+1772209696.5276375: > admin_page end
+1772209696.6299343: --- APP START ---
+1772209696.6308873: Importing login
+1772209696.6310208: Importing admin
+1772209696.6311083: Importing teacher
+1772209696.6311934: Importing search
+1772209696.6312668: Importing db
+1772209696.631339: Importing utils
+1772209696.6314647: --- main() start ---
+1772209696.6315427: > init_firebase
+1772209696.6317384: > inject_custom_css
+1772209696.633921: > hidden styles
+1772209696.6628857: --- main() end ---
+1772209721.7963448: --- APP START ---
+1772209721.7978601: Importing login
+1772209721.798867: Importing admin
+1772209721.7989898: Importing teacher
+1772209721.7990677: Importing search
+1772209721.7996616: Importing db
+1772209721.8002589: Importing utils
+1772209721.8008318: --- main() start ---
+1772209721.8012872: > init_firebase
+1772209721.8018222: > inject_custom_css
+1772209721.804572: > hidden styles
+1772209732.8550928: --- APP START ---
+1772209732.8564253: Importing login
+1772209732.8576887: Importing admin
+1772209732.85796: Importing teacher
+1772209732.8580477: Importing search
+1772209732.8581269: Importing db
+1772209732.8582056: Importing utils
+1772209732.8583367: --- main() start ---
+1772209732.858634: > init_firebase
+1772209732.8591266: > inject_custom_css
+1772209732.861023: > hidden styles
+1772209732.902636: > render_universal_search
+1772209733.128591: > user routing
+1772209733.1303546: > teacher_page start
+1772209733.2468762: > teacher_page end
+1772209733.2557852: --- main() end ---
+1772209826.2432675: --- APP START ---
+1772209826.244591: Importing login
+1772209826.246357: Importing admin
+1772209826.247168: Importing teacher
+1772209826.2473228: Importing search
+1772209826.2475905: Importing db
+1772209826.2476883: Importing utils
+1772209826.2482953: --- main() start ---
+1772209826.249168: > init_firebase
+1772209826.2496204: > inject_custom_css
+1772209826.2520201: > hidden styles
+1772209826.2917585: > render_universal_search
+1772209826.4678926: > user routing
+1772209826.4697614: > teacher_page start
+1772209837.1875489: > teacher_page end
+1772209837.1897142: --- main() end ---
+1772209866.7921183: --- APP START ---
+1772209866.7932112: Importing login
+1772209866.793928: Importing admin
+1772209866.7943897: Importing teacher
+1772209866.7950945: Importing search
+1772209866.79546: Importing db
+1772209866.7965958: Importing utils
+1772209866.7972653: --- main() start ---
+1772209866.797772: > init_firebase
+1772209866.7982433: > inject_custom_css
+1772209866.8008811: > hidden styles
+1772209866.8427625: > render_universal_search
+1772209867.0211363: > user routing
+1772209867.022584: > teacher_page start
+1772209868.0927215: > teacher_page end
+1772209868.0969174: --- main() end ---
+1772209912.6863048: --- APP START ---
+1772209912.6883836: Importing login
+1772209912.6886144: Importing admin
+1772209912.689227: Importing teacher
+1772209912.6899247: Importing search
+1772209912.6907232: Importing db
+1772209912.6918027: Importing utils
+1772209912.6920633: --- main() start ---
+1772209912.6921864: > init_firebase
+1772209912.6924071: > inject_custom_css
+1772209912.695486: > hidden styles
+1772209912.7251725: > render_universal_search
+1772209912.902291: > user routing
+1772209912.9037008: > teacher_page start
+1772209914.3660846: > teacher_page end
+1772209914.3721495: --- main() end ---

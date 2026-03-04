@@ -79,7 +79,10 @@ def create_user(email, password, name="", profile_photo="", signature=""):
         return True, user.uid
     except Exception as e:
         return False, str(e)
+    finally:
+        get_all_users.clear()
 
+@st.cache_data(ttl=30)
 def get_all_users():
     try:
         db = firestore.client()
@@ -133,6 +136,8 @@ def update_user(uid, new_email=None, new_password=None, name=None, profile_photo
         return True, "User updated successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_all_users.clear()
 
 def delete_user(uid):
     try:
@@ -145,20 +150,26 @@ def delete_user(uid):
         return True, "User deleted successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_all_users.clear()
 
-def create_class(class_name, section, teacher_email):
+def create_class(class_name, section, teacher_email, class_photo=""):
     try:
         db = firestore.client()
         _, new_ref = db.collection('classes').add({
             "class_name": class_name,
             "section": section,
             "teacher_email": teacher_email,
+            "class_photo": class_photo,
             "created_at": firestore.SERVER_TIMESTAMP
         })
         return True, new_ref.id
     except Exception as e:
         return False, str(e)
+    finally:
+        get_all_classes.clear()
 
+@st.cache_data(ttl=30)
 def get_all_classes():
     try:
         db = firestore.client()
@@ -172,6 +183,7 @@ def get_all_classes():
     except Exception as e:
         return False, str(e)
 
+@st.cache_data(ttl=30)
 def get_classes_for_teacher(teacher_email):
     try:
         db = firestore.client()
@@ -185,7 +197,7 @@ def get_classes_for_teacher(teacher_email):
     except Exception as e:
         return False, str(e)
 
-def update_class(class_id, class_name=None, section=None, teacher_email=None):
+def update_class(class_id, class_name=None, section=None, teacher_email=None, class_photo=None):
     try:
         db = firestore.client()
         ref = db.collection('classes').document(class_id)
@@ -193,12 +205,16 @@ def update_class(class_id, class_name=None, section=None, teacher_email=None):
         if class_name: data['class_name'] = class_name
         if section: data['section'] = section
         if teacher_email: data['teacher_email'] = teacher_email
+        if class_photo is not None: data['class_photo'] = class_photo
         
         if data:
             ref.update(data)
         return True, "Class updated successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_all_classes.clear()
+        get_classes_for_teacher.clear()
 
 def delete_class(class_id):
     try:
@@ -213,6 +229,10 @@ def delete_class(class_id):
         return True, "Class deleted successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_all_classes.clear()
+        get_classes_for_teacher.clear()
+        get_students_by_class.clear()
 
 # --- Students ---
 
@@ -248,7 +268,10 @@ def add_student(class_id, roll_number, name, apaar_id="", reg_number="", dob="",
         return True, new_ref.id
     except Exception as e:
         return False, str(e)
+    finally:
+        get_students_by_class.clear()
         
+@st.cache_data(ttl=30)
 def get_students_by_class(class_id):
     try:
         db = firestore.client()
@@ -291,6 +314,8 @@ def update_student(student_id, roll_number=None, name=None, apaar_id=None, reg_n
         return True, "Student updated successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_students_by_class.clear()
 
 def delete_student(student_id):
     try:
@@ -299,6 +324,136 @@ def delete_student(student_id):
         return True, "Student deleted successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_students_by_class.clear()
+
+def delete_all_students_in_class(class_id):
+    try:
+        db = firestore.client()
+        docs = db.collection('students').where(filter=firestore.FieldFilter('class_id', '==', class_id)).stream()
+        batch = db.batch()
+        count = 0
+        for doc in docs:
+            batch.delete(doc.reference)
+            count += 1
+            if count % 400 == 0:
+                batch.commit()
+                batch = db.batch()
+        if count % 400 != 0:
+            batch.commit()
+        return True, f"Successfully deleted {count} students."
+    except Exception as e:
+        return False, str(e)
+    finally:
+        get_students_by_class.clear()
+
+def update_student_attendance(student_id, month, working_days, attended_days):
+    try:
+        db = firestore.client()
+        ref = db.collection('students').document(student_id)
+        
+        # Calculate percentage
+        percentage = 0
+        if working_days > 0:
+            percentage = round((attended_days / working_days) * 100, 2)
+            
+        # We store attendance as a map inside the student document, e.g., attendance: {"April": {"working": 20, "attended": 18, "percentage": 90.0}}
+        ref.set({
+            "attendance": {
+                month: {
+                    "working_days": working_days,
+                    "attended_days": attended_days,
+                    "percentage": percentage
+                }
+            }
+        }, merge=True)
+        return True, "Attendance updated successfully"
+    except Exception as e:
+        return False, str(e)
+    finally:
+        get_students_by_class.clear()
+
+def bulk_import_attendance(class_id, workbook_dict):
+    """
+    Expects a dictionary of DataFrames from pd.read_excel(sheet_name=None).
+    Keys are sheet names (Months).
+    """
+    try:
+        db = firestore.client()
+        batch = db.batch()
+        
+        # Get existing students in this class to map Roll Number to Document ID
+        docs = db.collection('students').where(filter=firestore.FieldFilter('class_id', '==', class_id)).stream()
+        student_map = {}
+        for doc in docs:
+            data = doc.to_dict()
+            student_map[str(data.get('roll_number', '')).strip().lower()] = doc.reference
+            
+        if not student_map:
+            return False, "No students found in this class."
+
+        update_count = 0
+        for month_name, df in workbook_dict.items():
+            if df.empty: continue
+            
+            # Look for required columns (case-insensitive fuzzy match)
+            cols = [str(c).lower().strip() for c in df.columns]
+            
+            roll_idx = -1
+            working_idx = -1
+            attended_idx = -1
+            
+            for i, c in enumerate(cols):
+                if 'roll' in c: roll_idx = i
+                elif 'working' in c: working_idx = i
+                elif 'attended' in c: attended_idx = i
+                
+            if roll_idx == -1 or working_idx == -1 or attended_idx == -1:
+                return False, f"Sheet '{month_name}' is missing required columns (Roll Number, Working Days, Attended Days)."
+                
+            # Iterate through rows
+            for _, row in df.iterrows():
+                roll_val = str(row.iloc[roll_idx]).strip().lower()
+                working_val = row.iloc[working_idx]
+                attended_val = row.iloc[attended_idx]
+                
+                # Skip if empty roll number or values are empty/nan
+                if not roll_val or roll_val == 'nan':
+                    continue
+                    
+                working_val = 0 if pd.isna(working_val) or str(working_val).strip() == '' else float(working_val)
+                attended_val = 0 if pd.isna(attended_val) or str(attended_val).strip() == '' else float(attended_val)
+                
+                if roll_val in student_map:
+                    ref = student_map[roll_val]
+                    percentage = 0
+                    if working_val > 0:
+                        percentage = round((attended_val / working_val) * 100, 2)
+                        
+                    batch.set(ref, {
+                        "attendance": {
+                            month_name: {
+                                "working_days": int(working_val),
+                                "attended_days": int(attended_val),
+                                "percentage": percentage
+                            }
+                        }
+                    }, merge=True)
+                    update_count += 1
+                    
+                    # Batch limit is 500, commit if approaching
+                    if update_count % 400 == 0:
+                        batch.commit()
+                        batch = db.batch()
+                        
+        if update_count % 400 != 0:
+            batch.commit()
+            
+        return True, f"Successfully processed {update_count} attendance records across all months."
+    except Exception as e:
+        return False, str(e)
+    finally:
+        get_students_by_class.clear()
 
 def bulk_import_students(class_id, df):
     """
@@ -448,6 +603,8 @@ def bulk_import_students(class_id, df):
         return True, f"Import complete. Added {added_count} new students. Updated {updated_count} existing students."
     except Exception as e:
         return False, str(e)
+    finally:
+        get_students_by_class.clear()
 
 # ----------------- Subject Management Operations -----------------
 
@@ -475,7 +632,10 @@ def add_subject(class_id, subject_name):
         return True, "Subject added successfully"
     except Exception as e:
         return False, f"Failed to add subject: {e}"
+    finally:
+        get_subjects.clear()
 
+@st.cache_data(ttl=30)
 def get_subjects(class_id):
     try:
         db = firestore.client()
@@ -510,6 +670,8 @@ def update_subject(subject_id, name=None, sheet_url_t1=None, sheet_url_t2=None):
         return True, "Subject updated successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_subjects.clear()
 
 def delete_subject(subject_id):
     try:
@@ -518,6 +680,8 @@ def delete_subject(subject_id):
         return True, "Subject deleted successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_subjects.clear()
 
 # ----------------- Activity Logging Operations -----------------
 
@@ -542,6 +706,7 @@ def log_activity(teacher_email, action, class_name=None, details=None):
         # Fail silently for logging
         return False
 
+@st.cache_data(ttl=30)
 def get_recent_logs(teacher_email=None, hours=24):
     """
     Fetches activity logs from the past N hours.
@@ -583,6 +748,7 @@ def get_recent_logs(teacher_email=None, hours=24):
 
 # ----------------- Organization Settings Operations -----------------
 
+@st.cache_data(ttl=60)
 def get_org_name():
     try:
         db = firestore.client()
@@ -603,6 +769,9 @@ def update_org_name(org_name):
         return True, "Organization name updated"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_org_name.clear()
+        get_org_settings.clear()
 
 def get_admin_credentials():
     try:
@@ -649,6 +818,7 @@ def update_org_logo(base64_string):
     except Exception as e:
         return False, str(e)
 
+@st.cache_data(ttl=30)
 def get_org_settings():
     try:
         db = firestore.client()
@@ -668,4 +838,7 @@ def update_org_settings(settings_dict):
         return True, "Settings updated successfully"
     except Exception as e:
         return False, str(e)
+    finally:
+        get_org_settings.clear()
+        get_org_name.clear()
 

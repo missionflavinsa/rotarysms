@@ -1,13 +1,26 @@
 import streamlit as st
+import time
 
+def trace(msg):
+    with open("trace_perf.txt", "a") as f:
+        f.write(f"{time.time()}: {msg}\n")
+
+trace("--- APP START ---")
 # Set Streamlit Page Config MUST BE FIRST
 st.set_page_config(page_title="Rotary RMS", page_icon="🎓", layout="wide")
 
+trace("Importing login")
 from src.views.login import login_page
+trace("Importing admin")
 from src.views.admin import admin_page
+trace("Importing teacher")
 from src.views.teacher import teacher_page
+trace("Importing search")
 from src.views.universal_search import render_universal_search
+trace("Importing db")
 from src.database.firebase_init import init_firebase, get_org_logo, get_org_name
+trace("Importing utils")
+from src.views.ui_utils import inject_custom_css, inject_theme_toggle
 
 # Initialize session state for login
 if 'logged_in' not in st.session_state:
@@ -20,12 +33,14 @@ if 'user_email' not in st.session_state:
 from src.views.ui_utils import inject_custom_css, inject_theme_toggle
 
 def main():
+    trace("> init_firebase")
     # Ensure Firebase is initialized
     init_firebase()
     
+    trace("> inject_custom_css")
     # Inject Global SaaS CSS
     inject_custom_css()
-    
+    trace("> hidden styles")
     # Hide default Streamlit menu and footer
     hide_streamlit_style = """
                 <style>
@@ -49,16 +64,22 @@ def main():
         st.sidebar.title(f"🏢 {st.session_state.org_name}")
         
     if st.session_state.logged_in:
+        trace("> render_universal_search")
         st.sidebar.markdown('<div style="height: 1.5rem;"></div>', unsafe_allow_html=True)
         render_universal_search()
         
+        trace("> user routing")
         st.sidebar.markdown(f'<div style="margin-top: -15px; margin-bottom: -15px;"><small>Logged in as: <b>{st.session_state.user_email}</b></small></div>', unsafe_allow_html=True)
             
         # Routing based on role (renders their specific sidebar nav first)
         if st.session_state.user_role == 'admin':
+            trace("> admin_page start")
             admin_page()
+            trace("> admin_page end")
         elif st.session_state.user_role == 'teacher':
+            trace("> teacher_page start")
             teacher_page()
+            trace("> teacher_page end")
             
         st.sidebar.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
         
@@ -87,4 +108,6 @@ def main():
         login_page()
 
 if __name__ == "__main__":
+    trace("--- main() start ---")
     main()
+    trace("--- main() end ---")
